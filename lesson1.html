@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第一關 - 組合部件與找部首</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #eff6ff; /* 略有不同的藍色背景以區分關卡 */
+            background-image: linear-gradient(45deg, #dbeafe 25%, transparent 25%, transparent 75%, #dbeafe 75%, #dbeafe), linear-gradient(45deg, #dbeafe 25%, transparent 25%, transparent 75%, #dbeafe 75%, #dbeafe);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+            user-select: none;
+        }
+
+        /* 動畫設定 */
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            80% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop-in { animation: popIn 0.4s ease-out forwards; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px) rotate(-5deg); }
+            75% { transform: translateX(5px) rotate(5deg); }
+        }
+        .animate-shake { animation: shake 0.4s ease-in-out; }
+
+        /* 部件卡片互動 */
+        .piece-card {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        .piece-card:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .piece-card:active {
+            transform: translateY(0) scale(0.95);
+        }
+    </style>
+</head>
+<body class="min-h-screen text-gray-800 flex flex-col">
+
+    <div class="flex-grow flex flex-col relative w-full max-w-5xl mx-auto p-4 md:p-6 shadow-2xl bg-white/90 backdrop-blur-sm min-h-screen rounded-b-3xl">
+        
+        <!-- ================= 遊戲頭部資訊 ================= -->
+        <div class="flex justify-between items-center mb-6 bg-white p-4 rounded-2xl shadow-sm border-b-4 border-green-400">
+            <!-- 回大廳按鈕，使用超連結方式 -->
+            <a href="index.html" class="text-green-600 hover:text-green-800 font-bold text-lg flex items-center gap-2 px-4 py-2 bg-green-50 rounded-xl hover:bg-green-100 transition-colors no-underline">
+                <i class="fa-solid fa-arrow-left"></i> 離開關卡
+            </a>
+            
+            <!-- 進度條 -->
+            <div class="flex flex-col items-center flex-grow mx-4 max-w-md">
+                <span id="progress-text" class="text-gray-600 font-black mb-2 tracking-wider">進度: 1 / 4</span>
+                <div class="w-full bg-gray-200 rounded-full h-4 shadow-inner overflow-hidden border border-gray-300">
+                    <div id="progress-bar" class="bg-gradient-to-r from-green-400 via-emerald-500 to-teal-500 h-4 rounded-full transition-all duration-700 w-0 relative">
+                        <div class="absolute top-0 left-0 right-0 bottom-0 bg-white opacity-20" style="background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.5) 10px, rgba(255,255,255,0.5) 20px);"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="w-32 text-right text-gray-400 font-bold hidden sm:block">第一關</div>
+        </div>
+
+        <!-- 任務提示區 -->
+        <div class="text-center mb-8">
+            <h2 id="task-title" class="text-2xl md:text-3xl font-black text-blue-700 bg-blue-100 inline-block px-8 py-3 rounded-full shadow-sm border-2 border-blue-200">
+                <!-- 動態變更標題 -->
+            </h2>
+        </div>
+
+        <!-- ================= 階段一：組合部件 ================= -->
+        <div id="assemble-phase" class="flex-grow flex flex-col items-center justify-center animate-pop-in">
+            
+            <!-- 目標放置區 -->
+            <div id="target-slots" class="flex justify-center items-center gap-3 md:gap-6 mb-12 min-h-[140px] bg-gray-50 p-6 rounded-3xl border-4 border-dashed border-gray-300 shadow-inner w-full max-w-3xl">
+                <!-- JavaScript 會動態生成空格 -->
+            </div>
+
+            <!-- 待選部件區 -->
+            <div id="source-pieces" class="flex flex-wrap justify-center gap-4 md:gap-6 max-w-3xl bg-white p-8 rounded-3xl shadow-lg border-2 border-blue-100">
+                <!-- JavaScript 會動態生成部件選項 -->
+            </div>
+            
+            <div class="mt-8 bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg max-w-xl mx-auto shadow-sm">
+                <p class="text-yellow-800 font-bold text-sm md:text-base flex items-center gap-2">
+                    <i class="fa-solid fa-lightbulb text-yellow-500 text-xl"></i>
+                    點擊下方部件放進框框裡組合。如果放錯了，點擊框框裡的部件可以退回喔！
+                </p>
+            </div>
+        </div>
+
+        <!-- ================= 階段二：選部首 ================= -->
+        <div id="radical-phase" class="flex-grow flex flex-col items-center justify-center hidden">
+            <!-- 顯示完成的生字 -->
+            <div id="completed-char" class="text-8xl md:text-9xl font-black text-gray-800 mb-12 drop-shadow-xl w-48 h-48 bg-white rounded-3xl shadow-lg border-4 border-yellow-300 flex items-center justify-center pb-4 relative overflow-hidden">
+                <div class="absolute inset-0 bg-yellow-100 opacity-20"></div>
+                <span class="relative z-10"><!-- JavaScript 動態填入 --></span>
+            </div>
+
+            <!-- 部首選項按鈕 -->
+            <div id="radical-choices" class="grid grid-cols-2 gap-4 md:gap-8 w-full max-w-xl">
+                <!-- JavaScript 動態生成 -->
+            </div>
+        </div>
+
+        <!-- ================= 結算畫面 ================= -->
+        <div id="result-screen" class="hidden flex-col items-center justify-center flex-grow animate-pop-in">
+            <div class="relative mb-8">
+                <i class="fa-solid fa-certificate text-9xl text-yellow-400 drop-shadow-xl"></i>
+                <i class="fa-solid fa-check absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-6xl text-white"></i>
+            </div>
+            <h1 class="text-5xl font-black text-green-600 mb-4 tracking-wider drop-shadow-sm">恭喜過關！</h1>
+            <p class="text-2xl text-gray-600 mb-10 font-bold">你已經完成此關卡！</p>
+            <a href="index.html" class="group relative bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold text-2xl py-4 px-12 rounded-full shadow-lg hover:shadow-2xl hover:scale-105 transition-all no-underline overflow-hidden">
+                <span class="relative z-10">回到大廳</span>
+                <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity"></div>
+            </a>
+        </div>
+
+        <!-- 正確/錯誤 回饋彈出層 -->
+        <div id="feedback-overlay" class="fixed inset-0 z-50 flex items-center justify-center pointer-events-none hidden bg-black/30 backdrop-blur-sm transition-opacity">
+            <div id="feedback-content" class="bg-white px-16 py-10 rounded-3xl shadow-2xl border-8 transform scale-50 opacity-0 transition-all duration-300">
+                <i id="feedback-icon" class="text-7xl mb-4 block text-center"></i>
+                <h3 id="feedback-text" class="text-5xl font-black text-center tracking-widest"></h3>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        /* 
+         * ==========================================
+         * 第一關專屬：遊戲資料設定 (Dictionary)
+         * ==========================================
+         * 老師請看這裡：
+         * - components 裡面請填入您圖檔的完整名稱 (例如 "筆順-依-部件-1.png")
+         * - 系統偵測到 .png, .jpg 結尾就會自動顯示圖片，否則顯示純文字。
+         */
+        const lessonData = [
+            {
+                char: "依",
+                components: ["亻", "衣"], 
+                // 圖片範例: components: ["筆順-依-部件-1.png", "筆順-依-部件-2.png"]
+                radical: "人",
+                radicalChoices: ["人", "衣", "口", "木"]
+            },
+            {
+                char: "姐",
+                components: ["女", "且"],
+                radical: "女",
+                radicalChoices: ["月", "女", "一", "目"]
+            },
+            {
+                char: "招",
+                components: ["扌", "刀", "口"], 
+                radical: "手",
+                radicalChoices: ["手", "刀", "口", "人"]
+            },
+            {
+                char: "則",
+                components: ["貝", "刂"], 
+                radical: "刀",
+                radicalChoices: ["貝", "人", "刀", "水"]
+            }
+        ];
+
+        // 遊戲狀態狀態變數
+        let currentWordIndex = 0;
+        let selectedPieces = []; 
+        let availablePieces = []; 
+        
+        // 綁定 DOM 元素
+        const assemblePhaseEl = document.getElementById('assemble-phase');
+        const radicalPhaseEl = document.getElementById('radical-phase');
+        const resultScreenEl = document.getElementById('result-screen');
+        const taskTitle = document.getElementById('task-title');
+        const targetSlots = document.getElementById('target-slots');
+        const sourcePieces = document.getElementById('source-pieces');
+        
+        // 初始化遊戲 (頁面載入時自動執行)
+        window.onload = () => {
+            loadWord();
+        };
+
+        // 工具：判斷是否為圖片路徑
+        function isImage(val) {
+            return /\.(jpeg|jpg|gif|png|svg)$/i.test(val);
+        }
+
+        // 工具：渲染部件內容 (處理圖片與文字的差異)
+        function renderPieceContent(val) {
+            if (isImage(val)) {
+                return `<img src="${val}" alt="部件" class="w-full h-full object-contain pointer-events-none drop-shadow-md select-none">`;
+            } else {
+                return `<span class="pointer-events-none text-5xl md:text-6xl font-black text-gray-700 select-none">${val}</span>`;
+            }
+        }
+
+        // 工具：陣列洗牌
+        function shuffleArray(array) {
+            const newArr = [...array];
+            for (let i = newArr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+            }
+            return newArr;
+        }
+
+        // 載入目前題目的資料
+        function loadWord() {
+            const wordData = lessonData[currentWordIndex];
+            selectedPieces = []; 
+            availablePieces = shuffleArray(wordData.components); 
+            
+            updateProgressBar();
+            startAssemblePhase();
+        }
+
+        // 更新頂部進度條
+        function updateProgressBar() {
+            const total = lessonData.length;
+            const current = currentWordIndex + 1;
+            document.getElementById('progress-text').innerText = `進度: ${current} / ${total}`;
+            const percent = ((current - 1) / total) * 100;
+            document.getElementById('progress-bar').style.width = `${percent}%`;
+        }
+
+        // 開始組合部件階段
+        function startAssemblePhase() {
+            assemblePhaseEl.classList.remove('hidden');
+            assemblePhaseEl.classList.add('animate-pop-in');
+            radicalPhaseEl.classList.add('hidden');
+            resultScreenEl.classList.add('hidden');
+            
+            taskTitle.innerHTML = '<i class="fa-solid fa-puzzle-piece text-yellow-400 mr-2"></i> 第一步：請組合出正確的字';
+            
+            renderAssembleUI();
+        }
+
+        // 繪製組字階段的 UI 
+        function renderAssembleUI() {
+            const wordData = lessonData[currentWordIndex];
+            const targetCount = wordData.components.length;
+
+            // 1. 繪製上方目標區
+            targetSlots.innerHTML = '';
+            for (let i = 0; i < targetCount; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'w-24 h-24 md:w-32 md:h-32 bg-white rounded-2xl flex items-center justify-center border-4 border-dashed border-gray-300 transition-all';
+                
+                if (selectedPieces[i] !== undefined) {
+                    // 已放上部件的狀態
+                    slot.className = 'piece-card w-24 h-24 md:w-32 md:h-32 bg-white rounded-2xl flex items-center justify-center border-4 border-green-500 shadow-lg';
+                    slot.innerHTML = renderPieceContent(selectedPieces[i]);
+                    slot.onclick = () => removePiece(i);
+                }
+                targetSlots.appendChild(slot);
+            }
+
+            // 2. 繪製下方待選區
+            sourcePieces.innerHTML = '';
+            availablePieces.forEach((piece, index) => {
+                if (piece !== null) { 
+                    const btn = document.createElement('button');
+                    btn.className = 'piece-card w-24 h-24 md:w-32 md:h-32 bg-white border-4 border-blue-200 rounded-2xl flex items-center justify-center shadow-md hover:border-blue-400 hover:bg-blue-50';
+                    btn.innerHTML = renderPieceContent(piece);
+                    btn.onclick = () => selectPiece(index, piece);
+                    sourcePieces.appendChild(btn);
+                } else {
+                    // 被選走後的空位，維持排版
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'w-24 h-24 md:w-32 md:h-32 opacity-0';
+                    sourcePieces.appendChild(placeholder);
+                }
+            });
+        }
+
+        // 選取下方部件，移至上方
+        function selectPiece(sourceIndex, pieceValue) {
+            const targetCount = lessonData[currentWordIndex].components.length;
+            if (selectedPieces.length < targetCount) {
+                selectedPieces.push(pieceValue);       
+                availablePieces[sourceIndex] = null;   
+                renderAssembleUI();                    
+                
+                // 延遲一點點檢查答案，讓 UI 先渲染完畢
+                setTimeout(checkAssembly, 150);
+            }
+        }
+
+        // 點擊上方部件，退回下方
+        function removePiece(selectedIndex) {
+            const pieceValue = selectedPieces[selectedIndex];
+            selectedPieces.splice(selectedIndex, 1); 
+            
+            const emptySlotIndex = availablePieces.indexOf(null);
+            if (emptySlotIndex !== -1) {
+                availablePieces[emptySlotIndex] = pieceValue;
+            } else {
+                availablePieces.push(pieceValue); 
+            }
+            renderAssembleUI();
+        }
+
+        // 檢查組合是否正確
+        function checkAssembly() {
+            const wordData = lessonData[currentWordIndex];
+            
+            // 如果還沒放滿，不檢查
+            if (selectedPieces.length < wordData.components.length) return;
+
+            // 比對「排序後」的內容，允許學生不按順序放入
+            const sortedSelected = [...selectedPieces].sort().join(',');
+            const sortedTarget = [...wordData.components].sort().join(',');
+
+            if (sortedSelected === sortedTarget) {
+                showFeedback(true, () => {
+                    startRadicalPhase();
+                });
+            } else {
+                showFeedback(false, () => {
+                    selectedPieces = [];
+                    availablePieces = shuffleArray(wordData.components);
+                    renderAssembleUI();
+                });
+            }
+        }
+
+        // 開始選擇部首階段
+        function startRadicalPhase() {
+            assemblePhaseEl.classList.add('hidden');
+            assemblePhaseEl.classList.remove('animate-pop-in');
+            
+            radicalPhaseEl.classList.remove('hidden');
+            // 強制重繪以觸發動畫
+            void radicalPhaseEl.offsetWidth; 
+            radicalPhaseEl.classList.add('animate-pop-in'); 
+            
+            taskTitle.innerHTML = '<i class="fa-solid fa-magnifying-glass text-blue-500 mr-2"></i> 第二步：請選出這個字的「部首」';
+            
+            const wordData = lessonData[currentWordIndex];
+            
+            // 顯示完成的字 (利用 span 來包裝文字)
+            document.querySelector('#completed-char span').innerText = wordData.char;
+
+            // 繪製選項按鈕
+            const radicalChoices = document.getElementById('radical-choices');
+            radicalChoices.innerHTML = '';
+            wordData.radicalChoices.forEach(choice => {
+                const btn = document.createElement('button');
+                btn.className = 'bg-white border-4 border-indigo-200 hover:border-indigo-500 hover:bg-indigo-50 text-indigo-700 font-bold text-4xl md:text-5xl py-6 rounded-2xl shadow-md transition-all transform hover:scale-105 active:scale-95';
+                btn.innerText = choice;
+                btn.onclick = () => checkRadical(choice);
+                radicalChoices.appendChild(btn);
+            });
+        }
+
+        // 檢查部首
+        function checkRadical(selectedChoice) {
+            const wordData = lessonData[currentWordIndex];
+            if (selectedChoice === wordData.radical) {
+                showFeedback(true, () => {
+                    currentWordIndex++;
+                    if (currentWordIndex < lessonData.length) {
+                        loadWord(); // 下一題
+                    } else {
+                        showResult(); // 該關卡結束
+                    }
+                });
+            } else {
+                showFeedback(false);
+            }
+        }
+
+        // 顯示過關畫面
+        function showResult() {
+            document.getElementById('progress-bar').style.width = '100%';
+            document.getElementById('progress-text').innerText = `進度: 完成！`;
+            
+            radicalPhaseEl.classList.add('hidden');
+            taskTitle.parentElement.classList.add('hidden'); // 隱藏任務標題區
+            
+            resultScreenEl.classList.remove('hidden');
+            // 放煙火小動畫 (純CSS處理，這裡僅確保元素出現)
+        }
+
+        // 顯示 正確/錯誤 動畫回饋
+        function showFeedback(isCorrect, callback) {
+            const overlay = document.getElementById('feedback-overlay');
+            const content = document.getElementById('feedback-content');
+            const icon = document.getElementById('feedback-icon');
+            const text = document.getElementById('feedback-text');
+
+            overlay.classList.remove('hidden');
+            void overlay.offsetWidth; 
+
+            if (isCorrect) {
+                content.className = 'bg-white px-16 py-10 rounded-3xl shadow-2xl border-8 border-green-500 transform transition-all duration-300 scale-100 opacity-100';
+                icon.className = 'fa-solid fa-circle-check text-green-500 animate-bounce';
+                text.innerText = '正確';
+                text.className = 'text-5xl font-black text-center text-green-600 tracking-widest';
+            } else {
+                content.className = 'bg-white px-16 py-10 rounded-3xl shadow-2xl border-8 border-red-500 transform transition-all duration-300 scale-100 opacity-100 animate-shake';
+                icon.className = 'fa-solid fa-circle-xmark text-red-500';
+                text.innerText = '錯誤';
+                text.className = 'text-5xl font-black text-center text-red-600 tracking-widest';
+            }
+
+            // 0.8 秒後自動隱藏 (針對高年級節奏)
+            setTimeout(() => {
+                content.classList.replace('scale-100', 'scale-50');
+                content.classList.replace('opacity-100', 'opacity-0');
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                    if (callback) callback(); 
+                }, 300);
+            }, 800);
+        }
+    </script>
+</body>
+</html>
