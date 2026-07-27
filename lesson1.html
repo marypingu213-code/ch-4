@@ -190,8 +190,8 @@
         const renderPieceContent = (content) => {
             const lowerContent = content.toLowerCase();
             if (lowerContent.endsWith('.png') || lowerContent.endsWith('.jpg') || lowerContent.endsWith('.jpeg')) {
-                // 圖片標籤，確保在大螢幕上能盡量填滿格子
-                return `<img src="${content}" alt="部件" class="w-full h-full object-contain drop-shadow-md pointer-events-none">`;
+                // 圖片標籤：加入了 onerror 錯誤處理，如果圖片找不到，會直接在格子上顯示紅字路徑！
+                return `<img src="${content}" alt="部件" class="w-full h-full object-contain drop-shadow-md pointer-events-none" onerror='this.outerHTML="<div class=\\"text-sm lg:text-base text-red-500 font-bold break-all p-2 leading-tight flex items-center justify-center text-center w-full h-full\\">找不到圖片:<br>${content}</div>"'>`;
             } else {
                 return content;
             }
