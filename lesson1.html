@@ -2,11 +2,11 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
+    <!-- 確保在所有裝置上都能完美縮放 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>第一關：部件組合</title>
-    <!-- 引入 Tailwind CSS 進行排版 -->
+    <!-- 引入 Tailwind CSS 進行滿版排版 -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 引入 FontAwesome 圖示 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
@@ -14,89 +14,90 @@
         body {
             font-family: 'Noto Sans TC', sans-serif;
             background-color: #fdf4ff;
-            background-image: radial-gradient(#fbcfe8 2px, transparent 2px);
-            background-size: 30px 30px;
+            background-image: radial-gradient(#fbcfe8 3px, transparent 3px);
+            background-size: 40px 40px;
             user-select: none;
+            overflow-x: hidden; /* 防止在大電視上出現水平捲軸 */
         }
 
-        /* 浮動動畫 */
         @keyframes float {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+            50% { transform: translateY(-8px); }
         }
         .animate-float { animation: float 2.5s ease-in-out infinite; }
         
-        /* 震動動畫 (錯誤時使用) */
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-5px); }
-            40%, 80% { transform: translateX(5px); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
         }
         .animate-shake { animation: shake 0.4s ease-in-out; }
 
-        /* 放大彈出動畫 */
         @keyframes popIn {
-            0% { transform: scale(0.8); opacity: 0; }
+            0% { transform: scale(0.7); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
         }
         .animate-popIn { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
     </style>
 </head>
-<body class="min-h-screen text-gray-800 flex flex-col items-center justify-center p-4">
+<!-- 將外層設定為滿版 (min-h-screen) 並利用 padding 留出呼吸空間 -->
+<body class="min-h-screen text-gray-800 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-10">
 
-    <div class="w-full max-w-3xl bg-white/95 backdrop-blur-sm p-6 md:p-8 rounded-[2rem] shadow-xl relative border-4 border-fuchsia-200">
+    <!-- 遊戲主容器：移除 max-w-3xl，改用 w-full 與 max-w-[1800px] 讓它在大電視上能極大化 -->
+    <div class="w-full max-w-[1800px] flex-grow bg-white/95 backdrop-blur-sm p-6 sm:p-10 lg:p-16 rounded-[2rem] lg:rounded-[3rem] shadow-2xl relative border-4 lg:border-8 border-fuchsia-200 flex flex-col">
         
-        <!-- 返回大廳按鈕 -->
-        <a href="index.html" class="absolute top-6 left-6 text-gray-400 hover:text-fuchsia-600 transition-colors text-xl font-bold flex items-center gap-2 no-underline">
+        <!-- 返回大廳按鈕 (放大字體與觸控範圍) -->
+        <a href="index.html" class="absolute top-6 left-6 lg:top-10 lg:left-10 text-gray-400 hover:text-fuchsia-600 transition-colors text-2xl lg:text-3xl font-bold flex items-center gap-3 no-underline z-10">
             <i class="fa-solid fa-arrow-left"></i> 回大廳
         </a>
 
-        <!-- 關卡標題 -->
-        <div class="text-center mb-8 mt-4">
-            <h1 class="text-3xl md:text-4xl font-black text-fuchsia-600 drop-shadow-sm flex items-center justify-center gap-3">
+        <!-- 關卡標題 (在大電視上會變得非常大) -->
+        <div class="text-center mb-6 lg:mb-12 mt-12 lg:mt-4">
+            <h1 class="text-4xl sm:text-5xl lg:text-7xl font-black text-fuchsia-600 drop-shadow-sm flex items-center justify-center gap-4">
                 <i class="fa-solid fa-puzzle-piece text-fuchsia-400"></i>
-                第一關：部件組合
+                部件組合大挑戰
             </h1>
-            <p class="text-gray-500 font-bold mt-2 text-lg">請將下方的部件，組合成正確的國字！</p>
+            <p class="text-gray-500 font-bold mt-4 text-xl lg:text-3xl">請將下方的部件，組合出正確的國字！</p>
             
             <!-- 進度條 -->
-            <div class="w-full bg-gray-200 rounded-full h-3 mt-4 overflow-hidden">
-                <div id="progressBar" class="bg-gradient-to-r from-fuchsia-400 to-pink-500 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
+            <div class="w-full max-w-4xl mx-auto bg-gray-200 rounded-full h-4 lg:h-6 mt-6 lg:mt-10 overflow-hidden shadow-inner">
+                <div id="progressBar" class="bg-gradient-to-r from-fuchsia-400 to-pink-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
             </div>
-            <p id="progressText" class="text-sm text-gray-400 font-bold mt-1 text-right">0 / 4</p>
+            <p id="progressText" class="text-lg lg:text-2xl text-gray-400 font-bold mt-2 text-center">0 / 0</p>
         </div>
 
-        <!-- 遊戲主體區域 -->
-        <div id="gameArea" class="flex flex-col items-center">
+        <div id="gameArea" class="flex-grow flex flex-col items-center justify-center w-full">
             
             <!-- 階段一：部件組合 -->
             <div id="assemblyStage" class="w-full flex flex-col items-center animate-popIn">
-                <!-- 目標組合框 (放置選取的部件) -->
-                <div class="w-full max-w-md bg-fuchsia-50 border-4 border-dashed border-fuchsia-300 rounded-2xl p-6 mb-8 min-h-[160px] flex items-center justify-center gap-2 flex-wrap transition-colors duration-300" id="targetBox">
+                
+                <!-- 目標組合框 (放大最小高度，支援多達5個部件的排版) -->
+                <div class="w-full max-w-5xl bg-fuchsia-50 border-[6px] border-dashed border-fuchsia-300 rounded-3xl p-6 lg:p-10 mb-8 lg:mb-12 min-h-[220px] lg:min-h-[350px] flex items-center justify-center gap-4 lg:gap-8 flex-wrap transition-colors duration-300 shadow-inner" id="targetBox">
                     <!-- 選取的部件會出現在這裡 -->
                 </div>
                 
-                <p class="text-gray-500 font-bold mb-3"><i class="fa-solid fa-hand-pointer text-pink-400"></i> 請點擊下方部件：</p>
+                <p class="text-gray-500 font-bold mb-4 lg:mb-8 text-2xl lg:text-4xl"><i class="fa-solid fa-hand-pointer text-pink-400 animate-bounce"></i> 請點擊下方部件：</p>
                 
                 <!-- 可選部件區 -->
-                <div id="optionsBox" class="flex flex-wrap justify-center gap-4 w-full">
+                <div id="optionsBox" class="flex flex-wrap justify-center gap-6 lg:gap-10 w-full max-w-6xl">
                     <!-- 部件選項由 JS 生成 -->
                 </div>
             </div>
 
             <!-- 階段二：選擇部首 (預設隱藏) -->
             <div id="radicalStage" class="w-full flex flex-col items-center hidden">
-                <div class="text-8xl md:text-9xl font-black text-gray-800 mb-8 drop-shadow-md border-b-4 border-pink-200 pb-4" id="completedWordDisplay">
+                <!-- 完成的字體展示 (超級放大) -->
+                <div class="text-[8rem] sm:text-[12rem] lg:text-[18rem] font-black text-gray-800 mb-8 lg:mb-12 drop-shadow-xl border-b-8 border-pink-200 pb-4 leading-none" id="completedWordDisplay">
                     字
                 </div>
                 
-                <h2 class="text-2xl font-black text-pink-600 mb-6 flex items-center gap-2">
+                <h2 class="text-3xl sm:text-5xl lg:text-6xl font-black text-pink-600 mb-10 flex items-center gap-4">
                     <i class="fa-solid fa-magnifying-glass"></i>
                     請問這個字的「部首」是什麼？
                 </h2>
                 
                 <!-- 部首選項區 -->
-                <div id="radicalOptionsBox" class="flex flex-wrap justify-center gap-4 w-full">
+                <div id="radicalOptionsBox" class="flex flex-wrap justify-center gap-6 lg:gap-10 w-full max-w-5xl">
                     <!-- 部首選項由 JS 生成 -->
                 </div>
             </div>
@@ -104,21 +105,21 @@
         </div>
     </div>
 
-    <!-- 答對/答錯 回饋彈窗 (預設隱藏) -->
-    <div id="feedbackModal" class="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-3xl p-8 flex flex-col items-center shadow-2xl animate-popIn">
-            <div id="feedbackIcon" class="text-7xl mb-4"></div>
-            <h2 id="feedbackText" class="text-3xl font-black"></h2>
+    <!-- 答對/答錯 回饋彈窗 -->
+    <div id="feedbackModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-[3rem] p-12 lg:p-20 flex flex-col items-center shadow-2xl animate-popIn">
+            <div id="feedbackIcon" class="text-[8rem] lg:text-[12rem] mb-6"></div>
+            <h2 id="feedbackText" class="text-5xl lg:text-7xl font-black"></h2>
         </div>
     </div>
 
-    <!-- 恭喜過關彈窗 (預設隱藏) -->
+    <!-- 恭喜過關彈窗 -->
     <div id="completionModal" class="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-[3rem] p-10 flex flex-col items-center shadow-2xl animate-popIn border-8 border-pink-400 max-w-sm text-center">
-            <i class="fa-solid fa-trophy text-8xl text-yellow-400 mb-6 animate-float"></i>
-            <h2 class="text-4xl font-black text-pink-600 mb-4">恭喜過關！</h2>
-            <p class="text-xl font-bold text-gray-600 mb-8">你已經完成此關卡！</p>
-            <button onclick="window.location.href='index.html'" class="bg-gradient-to-r from-pink-500 to-rose-500 text-white text-2xl font-black py-4 px-10 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all">
+        <div class="bg-white rounded-[4rem] p-12 lg:p-24 flex flex-col items-center shadow-2xl animate-popIn border-[12px] border-pink-400 max-w-2xl text-center">
+            <i class="fa-solid fa-trophy text-[10rem] lg:text-[14rem] text-yellow-400 mb-8 animate-float"></i>
+            <h2 class="text-6xl lg:text-8xl font-black text-pink-600 mb-6 drop-shadow-sm">恭喜過關！</h2>
+            <p class="text-3xl lg:text-4xl font-bold text-gray-600 mb-12">你已經完成此關卡！</p>
+            <button onclick="window.location.href='index.html'" class="bg-gradient-to-r from-pink-500 to-rose-500 text-white text-4xl lg:text-5xl font-black py-6 px-16 rounded-full shadow-xl hover:shadow-2xl hover:scale-105 transition-all">
                 回到大廳
             </button>
         </div>
@@ -126,47 +127,48 @@
 
     <script>
         /* 
-         * STREAMING_CHUNK:設定遊戲字庫與圖片路徑... 
-         * ==========================================
-         * 第一關專屬：遊戲資料設定 (Dictionary)
-         * ==========================================
-         * 老師請注意：如果是有圖片的部件，請直接填寫圖片的「相對路徑」。
-         * 程式會自動判斷結尾是否有 .png 或 .jpg 來決定要顯示圖片還是純文字。
+         * STREAMING_CHUNK:建立包含 L1 與 L2 的完整遊戲資料庫... 
+         * 這裡包含了您提供的兩張圖片中所有的字！數量從2個到5個都有。
          */
         const lessonData = [
-            {
-                char: "依",
-                // 這裡示範使用圖片路徑 (請確保資料夾與檔名拼字大小寫完全相符)
-                components: ["lesson1/L1/筆順-依-部件-1.png", "lesson1/L1/筆順-依-部件-2.png"], 
-                radical: "人",
-                radicalChoices: ["人", "衣", "口", "木"]
-            },
-            {
-                char: "姐",
-                // 若沒有圖片，直接寫文字也是可以運作的！會顯示為大字體
-                components: ["女", "且"], 
-                radical: "女",
-                radicalChoices: ["月", "女", "一", "目"]
-            },
-            {
-                char: "招",
-                components: ["扌", "刀", "口"], 
-                radical: "手",
-                radicalChoices: ["手", "刀", "口", "人"]
-            },
-            {
-                char: "則",
-                components: ["貝", "刂"], 
-                radical: "刀",
-                radicalChoices: ["貝", "刀", "人", "木"]
-            }
+            // ====== 第一課 (L1) ======
+            { char: "束", components: ["lesson1/L1/筆順-束-部件-1.png", "lesson1/L1/筆順-束-部件-2.png"], radical: "木", radicalChoices: ["木", "口", "人", "水"] },
+            { char: "依", components: ["lesson1/L1/筆順-依-部件-1.png", "lesson1/L1/筆順-依-部件-2.png"], radical: "人", radicalChoices: ["人", "衣", "木", "手"] },
+            { char: "姐", components: ["lesson1/L1/筆順-姐-部件-1.png", "lesson1/L1/筆順-姐-部件-2.png"], radical: "女", radicalChoices: ["女", "且", "木", "人"] },
+            { char: "幸", components: ["lesson1/L1/筆順-幸-部件-1.png", "lesson1/L1/筆順-幸-部件-2.png", "lesson1/L1/筆順-幸-部件-3.png"], radical: "干", radicalChoices: ["干", "土", "十", "手"] },
+            { char: "拋", components: ["lesson1/L1/筆順-拋-部件-1.png", "lesson1/L1/筆順-拋-部件-2.png", "lesson1/L1/筆順-拋-部件-3.png"], radical: "手", radicalChoices: ["手", "力", "人", "水"] },
+            { char: "招", components: ["lesson1/L1/筆順-招-部件-1.png", "lesson1/L1/筆順-招-部件-2.png", "lesson1/L1/筆順-招-部件-3.png"], radical: "手", radicalChoices: ["手", "刀", "口", "木"] },
+            { char: "爭", components: ["lesson1/L1/筆順-爭-部件-1.png", "lesson1/L1/筆順-爭-部件-2.png"], radical: "爪", radicalChoices: ["爪", "手", "口", "木"] },
+            { char: "則", components: ["lesson1/L1/筆順-則-部件-1.png", "lesson1/L1/筆順-則-部件-2.png"], radical: "刀", radicalChoices: ["刀", "貝", "人", "水"] },
+            { char: "偷", components: ["lesson1/L1/筆順-偷-部件-1.png", "lesson1/L1/筆順-偷-部件-2.png", "lesson1/L1/筆順-偷-部件-3.png", "lesson1/L1/筆順-偷-部件-4.png", "lesson1/L1/筆順-偷-部件-5.png"], radical: "人", radicalChoices: ["人", "刀", "月", "一"] },
+            { char: "捨", components: ["lesson1/L1/筆順-捨-部件-1.png", "lesson1/L1/筆順-捨-部件-2.png", "lesson1/L1/筆順-捨-部件-3.png"], radical: "手", radicalChoices: ["手", "人", "舌", "木"] },
+            { char: "湯", components: ["lesson1/L1/筆順-湯-部件-1.png", "lesson1/L1/筆順-湯-部件-2.png", "lesson1/L1/筆順-湯-部件-3.png", "lesson1/L1/筆順-湯-部件-4.png"], radical: "水", radicalChoices: ["水", "日", "一", "手"] },
+            { char: "暫", components: ["lesson1/L1/筆順-暫-部件-1.png", "lesson1/L1/筆順-暫-部件-2.png", "lesson1/L1/筆順-暫-部件-3.png"], radical: "日", radicalChoices: ["日", "車", "斤", "木"] },
+            { char: "糧", components: ["lesson1/L1/筆順-糧-部件-1.png", "lesson1/L1/筆順-糧-部件-2.png", "lesson1/L1/筆順-糧-部件-3.png", "lesson1/L1/筆順-糧-部件-4.png"], radical: "米", radicalChoices: ["米", "日", "一", "里"] },
+            { char: "繩", components: ["lesson1/L1/筆順-繩-部件-1.png", "lesson1/L1/筆順-繩-部件-2.png", "lesson1/L1/筆順-繩-部件-3.png", "lesson1/L1/筆順-繩-部件-4.png"], radical: "糸", radicalChoices: ["糸", "口", "虫", "水"] },
+            { char: "警", components: ["lesson1/L1/筆順-警-部件-1.png", "lesson1/L1/筆順-警-部件-2.png"], radical: "言", radicalChoices: ["言", "敬", "口", "木"] },
+            
+            // ====== 第二課 (L2) ======
+            { char: "串", components: ["lesson1/L2/筆順-串-部件-1.png", "lesson1/L2/筆順-串-部件-2.png", "lesson1/L2/筆順-串-部件-3.png"], radical: "丨", radicalChoices: ["丨", "口", "人", "木"] },
+            { char: "泳", components: ["lesson1/L2/筆順-泳-部件-1.png", "lesson1/L2/筆順-泳-部件-2.png"], radical: "水", radicalChoices: ["水", "木", "人", "日"] },
+            { char: "陀", components: ["lesson1/L2/筆順-陀-部件-1.png", "lesson1/L2/筆順-陀-部件-2.png"], radical: "阜", radicalChoices: ["阜", "宀", "匕", "手"] },
+            { char: "姿", components: ["lesson1/L2/筆順-姿-部件-1.png", "lesson1/L2/筆順-姿-部件-2.png", "lesson1/L2/筆順-姿-部件-3.png"], radical: "女", radicalChoices: ["女", "欠", "次", "人"] },
+            { char: "般", components: ["lesson1/L2/筆順-般-部件-1.png", "lesson1/L2/筆順-般-部件-2.png", "lesson1/L2/筆順-般-部件-3.png"], radical: "舟", radicalChoices: ["舟", "几", "又", "水"] },
+            { char: "溜", components: ["lesson1/L2/筆順-溜-部件-1.png", "lesson1/L2/筆順-溜-部件-2.png", "lesson1/L2/筆順-溜-部件-3.png", "lesson1/L2/筆順-溜-部件-4.png"], radical: "水", radicalChoices: ["水", "刀", "田", "木"] },
+            { char: "滑", components: ["lesson1/L2/筆順-滑-部件-1.png", "lesson1/L2/筆順-滑-部件-2.png", "lesson1/L2/筆順-滑-部件-3.png"], radical: "水", radicalChoices: ["水", "月", "骨", "手"] },
+            { char: "煩", components: ["lesson1/L2/筆順-煩-部件-1.png", "lesson1/L2/筆順-煩-部件-2.png", "lesson1/L2/筆順-煩-部件-3.png"], radical: "火", radicalChoices: ["火", "貝", "一", "頁"] },
+            { char: "緩", components: ["lesson1/L2/筆順-緩-部件-1.png", "lesson1/L2/筆順-緩-部件-2.png", "lesson1/L2/筆順-緩-部件-3.png", "lesson1/L2/筆順-緩-部件-4.png"], radical: "糸", radicalChoices: ["糸", "又", "爪", "厂"] },
+            { char: "邀", components: ["lesson1/L2/筆順-邀-部件-1.png", "lesson1/L2/筆順-邀-部件-2.png", "lesson1/L2/筆順-邀-部件-3.png", "lesson1/L2/筆順-邀-部件-4.png"], radical: "辵", radicalChoices: ["辵", "士", "方", "攵"] },
+            { char: "螺", components: ["lesson1/L2/筆順-螺-部件-1.png", "lesson1/L2/筆順-螺-部件-2.png", "lesson1/L2/筆順-螺-部件-3.png"], radical: "虫", radicalChoices: ["虫", "田", "糸", "木"] },
+            { char: "轉", components: ["lesson1/L2/筆順-轉-部件-1.png", "lesson1/L2/筆順-轉-部件-2.png", "lesson1/L2/筆順-轉-部件-3.png"], radical: "車", radicalChoices: ["車", "寸", "專", "手"] },
+            { char: "躍", components: ["lesson1/L2/筆順-躍-部件-1.png", "lesson1/L2/筆順-躍-部件-2.png", "lesson1/L2/筆順-躍-部件-3.png"], radical: "足", radicalChoices: ["足", "羽", "隹", "鳥"] },
+            { char: "鷹", components: ["lesson1/L2/筆順-鷹-部件-1.png", "lesson1/L2/筆順-鷹-部件-2.png", "lesson1/L2/筆順-鷹-部件-3.png", "lesson1/L2/筆順-鷹-部件-4.png"], radical: "鳥", radicalChoices: ["鳥", "广", "人", "隹"] }
         ];
 
         let currentWordIndex = 0;
-        let selectedPieces = []; // 存放玩家目前點選的部件
-        let currentOptions = []; // 存放目前打亂後的部件選項
+        let selectedPieces = []; 
+        let currentOptions = []; 
 
-        // 頁面載入後初始化
         window.onload = () => {
             initGame();
         };
@@ -185,17 +187,12 @@
             progressText.innerText = currentWordIndex + ' / ' + lessonData.length;
         }
 
-        /* 
-         * STREAMING_CHUNK:核心判斷：渲染圖片或文字... 
-         * 這個函數非常重要！它會判斷內容是不是圖片結尾。
-         */
         const renderPieceContent = (content) => {
             const lowerContent = content.toLowerCase();
             if (lowerContent.endsWith('.png') || lowerContent.endsWith('.jpg') || lowerContent.endsWith('.jpeg')) {
-                // 如果是圖片路徑，就產生 <img> 標籤
-                return `<img src="${content}" alt="部件" class="max-w-full max-h-full object-contain drop-shadow-sm pointer-events-none">`;
+                // 圖片標籤，確保在大螢幕上能盡量填滿格子
+                return `<img src="${content}" alt="部件" class="w-full h-full object-contain drop-shadow-md pointer-events-none">`;
             } else {
-                // 否則顯示為純文字
                 return content;
             }
         };
@@ -204,73 +201,60 @@
             selectedPieces = [];
             document.getElementById('assemblyStage').classList.remove('hidden');
             document.getElementById('radicalStage').classList.add('hidden');
-            document.getElementById('targetBox').innerHTML = ''; // 清空目標框
+            document.getElementById('targetBox').innerHTML = ''; 
             
             const currentData = lessonData[currentWordIndex];
             
-            // 複製一份部件陣列並打亂順序
             currentOptions = [...currentData.components];
             currentOptions.sort(() => Math.random() - 0.5);
 
             const optionsBox = document.getElementById('optionsBox');
             optionsBox.innerHTML = '';
 
-            // 產生可選部件的按鈕
             currentOptions.forEach((comp, index) => {
                 const pieceDiv = document.createElement('div');
-                // 根據內容是圖片還是文字，設定不同的 padding
                 const isImage = comp.toLowerCase().endsWith('.png') || comp.toLowerCase().endsWith('.jpg');
-                const paddingClass = isImage ? 'p-1' : 'p-4';
+                const paddingClass = isImage ? 'p-2 lg:p-4' : 'p-4 lg:p-8';
 
-                pieceDiv.className = `w-20 h-20 md:w-24 md:h-24 bg-white border-2 border-gray-200 rounded-xl shadow-sm hover:shadow-md cursor-pointer hover:-translate-y-1 transition-all flex items-center justify-center text-4xl font-bold text-gray-700 ${paddingClass}`;
+                // RWD 設計：在不同裝置上給予不同大小 (大電視上會變成 w-40 h-40 甚至更大)
+                pieceDiv.className = `w-24 h-24 sm:w-32 sm:h-32 lg:w-48 lg:h-48 bg-white border-4 border-gray-200 rounded-2xl lg:rounded-3xl shadow-md hover:shadow-xl hover:border-fuchsia-300 cursor-pointer hover:-translate-y-2 transition-all flex items-center justify-center text-5xl lg:text-7xl font-bold text-gray-700 ${paddingClass}`;
                 
                 pieceDiv.innerHTML = renderPieceContent(comp);
-                
                 pieceDiv.onclick = () => selectPiece(index, pieceDiv, comp);
                 optionsBox.appendChild(pieceDiv);
             });
         }
 
         function selectPiece(index, element, compContent) {
-            // 隱藏原本的選項 (假裝移動)
             element.style.visibility = 'hidden';
-            
-            // 加入已選清單
             selectedPieces.push(compContent);
             
-            // 在目標框產生新的元素
             const targetBox = document.getElementById('targetBox');
             const newPiece = document.createElement('div');
             
             const isImage = compContent.toLowerCase().endsWith('.png') || compContent.toLowerCase().endsWith('.jpg');
-            const paddingClass = isImage ? 'p-1' : 'p-4';
+            const paddingClass = isImage ? 'p-2 lg:p-4' : 'p-4 lg:p-8';
 
-            newPiece.className = `w-16 h-16 md:w-20 md:h-20 bg-white border-2 border-fuchsia-400 rounded-xl shadow-sm flex items-center justify-center text-3xl font-bold text-gray-700 cursor-pointer animate-popIn ${paddingClass}`;
+            // 目標框內的部件也具備 RWD 放大設計
+            newPiece.className = `w-20 h-20 sm:w-28 sm:h-28 lg:w-44 lg:h-44 bg-white border-4 border-fuchsia-400 rounded-2xl lg:rounded-3xl shadow-md flex items-center justify-center text-4xl lg:text-6xl font-bold text-gray-700 cursor-pointer animate-popIn hover:bg-red-50 transition-colors ${paddingClass}`;
             newPiece.innerHTML = renderPieceContent(compContent);
             
-            // 點擊可以退回部件
             newPiece.onclick = () => returnPiece(index, newPiece, compContent);
-            
             targetBox.appendChild(newPiece);
 
-            // 檢查是否選滿了部件
             const currentData = lessonData[currentWordIndex];
             if (selectedPieces.length === currentData.components.length) {
-                setTimeout(checkAssembly, 300); // 稍微延遲讓動畫跑完
+                setTimeout(checkAssembly, 300); 
             }
         }
 
         function returnPiece(originalIndex, targetElement, compContent) {
-            // 從已選陣列中移除
             const removeIndex = selectedPieces.indexOf(compContent);
             if (removeIndex > -1) {
                 selectedPieces.splice(removeIndex, 1);
             }
-            
-            // 移除目標框中的元素
             targetElement.remove();
             
-            // 恢復原本選項區的元素顯示
             const optionsBox = document.getElementById('optionsBox');
             optionsBox.children[originalIndex].style.visibility = 'visible';
         }
@@ -279,7 +263,6 @@
             const currentData = lessonData[currentWordIndex];
             const targetBox = document.getElementById('targetBox');
             
-            // 檢查陣列內容是否完全一致 (不考慮順序)
             const sortedSelected = [...selectedPieces].sort();
             const sortedTarget = [...currentData.components].sort();
             
@@ -288,9 +271,8 @@
             if (isCorrect) {
                 targetBox.classList.replace('border-fuchsia-300', 'border-green-400');
                 targetBox.classList.add('bg-green-50');
-                showFeedback(true, "正確！");
+                showFeedback(true, "正確");
                 
-                // 1秒後進入部首選擇
                 setTimeout(() => {
                     targetBox.classList.replace('border-green-400', 'border-fuchsia-300');
                     targetBox.classList.remove('bg-green-50');
@@ -299,9 +281,8 @@
 
             } else {
                 targetBox.classList.add('animate-shake', 'border-red-400', 'bg-red-50');
-                showFeedback(false, "錯誤！");
+                showFeedback(false, "錯誤");
                 
-                // 錯誤則重置
                 setTimeout(() => {
                     targetBox.classList.remove('animate-shake', 'border-red-400', 'bg-red-50');
                     loadWord(); 
@@ -316,22 +297,20 @@
             radicalStage.classList.add('animate-popIn');
             
             const currentData = lessonData[currentWordIndex];
-            
-            // 顯示組合好的中文字
             document.getElementById('completedWordDisplay').innerText = currentData.char;
             
             const radicalOptionsBox = document.getElementById('radicalOptionsBox');
             radicalOptionsBox.innerHTML = '';
             
-            // 產生部首按鈕 (預設已在資料中寫好選項)
             let choices = [...currentData.radicalChoices];
-            choices.sort(() => Math.random() - 0.5); // 打亂部首選項
+            choices.sort(() => Math.random() - 0.5); 
 
             choices.forEach(choice => {
                 const btn = document.createElement('button');
-                btn.className = "group relative bg-white border-2 border-pink-200 text-pink-700 text-3xl font-bold w-20 h-20 md:w-24 md:h-24 rounded-2xl shadow-sm hover:bg-pink-50 hover:border-pink-400 hover:shadow-md transition-all hover:-translate-y-1 flex items-center justify-center overflow-hidden";
+                // 部首按鈕 RWD 放大設計
+                btn.className = "group relative bg-white border-4 border-pink-200 text-pink-700 text-4xl sm:text-5xl lg:text-7xl font-bold w-24 h-24 sm:w-32 sm:h-32 lg:w-48 lg:h-48 rounded-3xl shadow-md hover:bg-pink-50 hover:border-pink-400 hover:shadow-xl transition-all hover:-translate-y-2 flex items-center justify-center overflow-hidden";
                 
-                btn.innerHTML = `<span class="relative z-10">${choice}</span>`;
+                btn.innerHTML = `<span class="relative z-10 pointer-events-none">${choice}</span>`;
                 btn.onclick = () => selectRadical(choice);
                 radicalOptionsBox.appendChild(btn);
             });
@@ -340,11 +319,10 @@
         function selectRadical(choice) {
             const currentData = lessonData[currentWordIndex];
             if (choice === currentData.radical) {
-                showFeedback(true, "正確！");
+                showFeedback(true, "正確");
                 setTimeout(nextWord, 1000);
             } else {
-                showFeedback(false, "錯誤！");
-                // 這裡可以選擇不重置，讓學生繼續猜部首
+                showFeedback(false, "錯誤");
             }
         }
 
@@ -353,7 +331,6 @@
             updateProgress();
             
             if (currentWordIndex >= lessonData.length) {
-                // 遊戲結束
                 document.getElementById('completionModal').classList.remove('hidden');
             } else {
                 loadWord();
@@ -368,17 +345,16 @@
             feedbackModal.classList.remove('hidden');
             
             if (isCorrect) {
-                feedbackIcon.className = "text-7xl mb-4 text-green-500";
+                feedbackIcon.className = "text-[8rem] lg:text-[12rem] mb-6 text-green-500";
                 feedbackIcon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
-                feedbackText.className = "text-3xl font-black text-green-600";
+                feedbackText.className = "text-5xl lg:text-7xl font-black text-green-600";
             } else {
-                feedbackIcon.className = "text-7xl mb-4 text-red-500 animate-shake";
+                feedbackIcon.className = "text-[8rem] lg:text-[12rem] mb-6 text-red-500 animate-shake";
                 feedbackIcon.innerHTML = '<i class="fa-solid fa-circle-xmark"></i>';
-                feedbackText.className = "text-3xl font-black text-red-600";
+                feedbackText.className = "text-5xl lg:text-7xl font-black text-red-600";
             }
             feedbackText.textContent = message;
 
-            // 0.8秒後自動隱藏，讓節奏更輕快
             setTimeout(() => {
                 feedbackModal.classList.add('hidden');
             }, 800);
