@@ -50,24 +50,22 @@
             left: 0 !important;
             right: 0 !important;
             bottom: 0 !important;
-            margin: auto !important; /* 絕對置中 */
+            margin: 0 !important; /* 取消 auto，強制對齊左上角並撐滿 */
             width: 100% !important;  /* 填滿田字格 */
             height: 100% !important; /* 填滿田字格 */
             background: transparent !important; /* 隱藏背景 */
             border: none !important; /* 隱藏邊框 */
             box-shadow: none !important; /* 隱藏陰影 */
-            padding: 0 !important; /* 取消內距讓圖片放到最大 */
+            padding: 0 !important; /* 取消內距，讓圖片完美貼合邊界 */
             z-index: 20 !important; /* 確保疊在十字線上 */
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
+            display: block !important; /* 取消 flex，改回 block 讓內部圖片絕對掌控大小 */
         }
 
         /* 確保裡面的圖片也保持原始比例並撐滿 */
         .draggable-piece.in-target img {
             width: 100% !important;
             height: 100% !important;
-            object-fit: contain !important; /* 保持原比例，不會變形 */
+            object-fit: fill !important; /* ★ 關鍵修改：強制填滿。如果您的圖片本身都是相同大小的方形透明圖，用 fill 會完美對齊，不會因為原始比例差異而歪掉 */
             pointer-events: none !important; /* 讓圖片不干擾拖曳 */
         }
     </style>
