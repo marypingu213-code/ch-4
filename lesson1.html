@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>第一關：部件組合</title>
-    <!-- 引入 Tailwind CSS 進行排版 -->
+    <!-- 引入 Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* 基礎樣式設定 */
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
         
         body {
@@ -39,70 +40,77 @@
         }
         .animate-popIn { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
 
-        /* 拖曳中與放入田字格後的部件樣式：無白底、無邊框、背景透明 */
-        .draggable-piece.is-dragging,
-        .draggable-piece.in-target {
-            position: absolute !important;
+        /* 
+           ★ 關鍵樣式：拖曳狀態 (Dragging) 
+           當物件被抓起時，讓它背景透明，方便對準 
+        */
+        .draggable-piece.is-dragging {
             background: transparent !important;
             border-color: transparent !important;
             box-shadow: none !important;
-            padding: 0 !important;
+            opacity: 0.9;
+        }
+
+        /* 
+           ★ 關鍵樣式：放入田字格後的狀態 (In Target) 
+           放入後必須是 absolute 才能自由擺放，並隱藏原本白底
+        */
+        .draggable-piece.in-target {
+            position: absolute !important;
+            background: transparent !important; 
+            border-color: transparent !important; 
+            box-shadow: none !important; 
+            padding: 0 !important; 
             margin: 0 !important;
-            z-index: 50 !important;
+            z-index: 20 !important; 
         }
 
-        /* 拖曳中給予輕微圖片陰影提升對比，但不擋住底層 */
-        .draggable-piece.is-dragging {
-            z-index: 9999 !important;
-            filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.25));
-        }
-
-        /* 確保部件圖片維持原比例並填滿容器 */
-        .draggable-piece img {
+        /* 確保裡面的圖片保持原始比例 */
+        .draggable-piece.in-target img {
             width: 100% !important;
             height: 100% !important;
             object-fit: contain !important; 
-            pointer-events: none !important;
+            pointer-events: none !important; 
         }
     </style>
 </head>
-<body class="min-h-screen text-gray-800 flex flex-col items-center justify-center p-3 sm:p-5 lg:p-8">
+<body class="min-h-screen text-gray-800 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
 
-    <div class="w-full max-w-[1700px] flex-grow bg-white/95 backdrop-blur-sm p-4 sm:p-6 lg:p-10 rounded-[2rem] lg:rounded-[3rem] shadow-2xl relative border-4 lg:border-8 border-fuchsia-200 flex flex-col justify-between">
+    <div class="w-full max-w-[1600px] flex-grow bg-white/95 backdrop-blur-sm p-6 sm:p-8 lg:p-12 rounded-[2rem] lg:rounded-[3rem] shadow-2xl relative border-4 lg:border-8 border-fuchsia-200 flex flex-col">
         
         <!-- 返回大廳按鈕 -->
-        <a href="index.html" class="absolute top-4 left-4 lg:top-7 lg:left-7 text-gray-400 hover:text-fuchsia-600 transition-colors text-lg lg:text-2xl font-bold flex items-center gap-2 no-underline z-10">
+        <a href="index.html" class="absolute top-5 left-5 lg:top-8 lg:left-8 text-gray-400 hover:text-fuchsia-600 transition-colors text-xl lg:text-2xl font-bold flex items-center gap-2 no-underline z-10">
             <i class="fa-solid fa-arrow-left"></i> 回大廳
         </a>
 
-        <!-- 關卡標題與進度 -->
-        <div class="text-center mb-4 lg:mb-6 mt-8 lg:mt-2">
-            <h1 class="text-2xl sm:text-4xl lg:text-5xl font-black text-fuchsia-600 drop-shadow-sm flex items-center justify-center gap-3">
+        <!-- 關卡標題 -->
+        <div class="text-center mb-6 lg:mb-10 mt-10 lg:mt-4">
+            <h1 class="text-3xl sm:text-4xl lg:text-6xl font-black text-fuchsia-600 drop-shadow-sm flex items-center justify-center gap-4">
                 <i class="fa-solid fa-puzzle-piece text-fuchsia-400"></i>
                 部件組合大挑戰
             </h1>
-            <p class="text-gray-500 font-bold mt-2 text-base lg:text-xl">請將右側待選部件拖曳至左側田字格，組合出正確國字！</p>
+            <p class="text-gray-500 font-bold mt-3 text-lg lg:text-2xl">請將下方的部件，組合出正確的國字！</p>
             
-            <div class="w-full max-w-2xl mx-auto bg-gray-200 rounded-full h-3 lg:h-4 mt-4 overflow-hidden shadow-inner">
+            <div class="w-full max-w-3xl mx-auto bg-gray-200 rounded-full h-3 lg:h-5 mt-5 lg:mt-8 overflow-hidden shadow-inner">
                 <div id="progressBar" class="bg-gradient-to-r from-fuchsia-400 to-pink-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
             </div>
-            <p id="progressText" class="text-sm lg:text-lg text-gray-400 font-bold mt-1 text-center">0 / 0</p>
+            <p id="progressText" class="text-base lg:text-xl text-gray-400 font-bold mt-2 text-center">0 / 0</p>
         </div>
 
-        <div id="gameArea" class="flex-grow flex flex-col items-center justify-center w-full relative">
+        <div id="gameArea" class="flex-grow flex flex-col items-center w-full relative">
             
             <!-- 階段一：部件組合 -->
-            <div id="assemblyStage" class="w-full flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-10 animate-popIn px-2">
+            <div id="assemblyStage" class="w-full flex flex-col lg:flex-row items-center lg:items-stretch justify-center gap-6 lg:gap-12 animate-popIn px-4">
                 
-                <!-- 左側：放大版田字格目標區 -->
-                <div class="flex flex-col items-center w-full lg:w-1/2 max-w-2xl border-[6px] border-red-400 bg-red-50/40 rounded-[2rem] p-4 lg:p-6 shadow-sm">
-                    <p class="text-red-500 font-black mb-3 lg:mb-5 text-xl lg:text-3xl drop-shadow-sm flex items-center gap-2">
+                <!-- 左側：目標區 -->
+                <div class="flex flex-col items-center w-full lg:w-1/2 max-w-xl border-[6px] border-red-400 bg-red-50/40 rounded-[2rem] p-6 lg:p-8 shadow-sm">
+                    <p class="text-red-500 font-black mb-4 lg:mb-8 text-2xl lg:text-4xl drop-shadow-sm flex items-center gap-3">
                         <i class="fa-solid fa-arrow-down"></i> 拖曳至此組合
                     </p>
                     
-                    <!-- 放大田字格容器 (最大 520px x 520px) -->
-                    <div id="targetBox" class="relative bg-white w-[300px] h-[300px] sm:w-[420px] sm:h-[420px] lg:w-[520px] lg:h-[520px] rounded-2xl shadow-inner border-4 border-gray-400 transition-colors overflow-hidden">
-                        <!-- 十字格線 -->
+                    <!-- 尺寸加大 -->
+                    <div id="targetBox" class="relative bg-white w-[280px] h-[280px] sm:w-[400px] sm:h-[400px] lg:w-[520px] lg:h-[520px] rounded-2xl shadow-inner border-4 border-gray-400 transition-colors overflow-hidden">
+                        <!-- 十字線裝飾 -->
                         <div class="absolute inset-0 pointer-events-none flex flex-col justify-center items-center z-0">
                             <div class="w-full h-[2px] bg-gray-300 border-dashed"></div>
                         </div>
@@ -112,36 +120,38 @@
                     </div>
                 </div>
                 
-                <!-- 右側：待選部件區 -->
-                <div class="flex flex-col items-center w-full lg:w-1/2 max-w-2xl border-[6px] border-blue-400 bg-blue-50/40 rounded-[2rem] p-4 lg:p-6 shadow-sm relative min-h-[360px] lg:min-h-[580px]">
-                    <p class="text-blue-500 font-black mb-4 lg:mb-6 text-xl lg:text-3xl drop-shadow-sm flex items-center gap-2">
+                <!-- 右側：選項區 -->
+                <div class="flex flex-col items-center w-full lg:w-1/2 max-w-2xl border-[6px] border-blue-400 bg-blue-50/40 rounded-[2rem] p-6 lg:p-8 shadow-sm relative">
+                    <p class="text-blue-500 font-black mb-4 lg:mb-8 text-2xl lg:text-4xl drop-shadow-sm flex items-center gap-3">
                         <i class="fa-solid fa-hand-pointer animate-bounce"></i> 待選部件區
                     </p>
                     
-                    <div id="optionsBox" class="flex flex-wrap justify-center items-center gap-4 lg:gap-6 w-full min-h-[260px] content-start relative z-10">
-                        <!-- 部件卡片由 JS 動態生成 -->
+                    <div id="optionsBox" class="flex flex-wrap justify-center gap-4 lg:gap-6 w-full min-h-[260px] content-start relative z-10">
+                        <!-- 選項由 JS 生成 -->
                     </div>
                 </div>
             </div>
 
-            <div id="actionArea" class="w-full flex justify-center mt-6 h-[60px]">
-                <button id="finishBtn" onclick="finishAssembly()" class="hidden bg-green-500 hover:bg-green-600 text-white text-xl lg:text-3xl font-bold py-3 px-10 rounded-full shadow-lg transition-transform hover:scale-105 active:scale-95">
+            <!-- 組裝完成按鈕區 -->
+            <div id="actionArea" class="w-full flex justify-center mt-8 h-[60px]">
+                <button id="finishBtn" onclick="finishAssembly()" class="hidden bg-green-500 hover:bg-green-600 text-white text-2xl lg:text-4xl font-bold py-3 px-12 rounded-full shadow-lg transition-transform hover:scale-105 active:scale-95">
                     <i class="fa-solid fa-check mr-2"></i> 我拼好了
                 </button>
             </div>
 
-            <div id="radicalStage" class="w-full flex flex-col items-center hidden absolute top-0 w-full h-full bg-white/95 z-30">
-                <div class="text-[7rem] sm:text-[10rem] lg:text-[14rem] font-black text-gray-800 mb-4 lg:mb-8 drop-shadow-xl border-b-8 border-pink-200 pb-2 leading-none mt-6" id="completedWordDisplay">
+            <!-- 階段二：選擇部首 -->
+            <div id="radicalStage" class="w-full flex flex-col items-center hidden absolute top-0 w-full h-full bg-white/95">
+                <div class="text-[7rem] sm:text-[10rem] lg:text-[15rem] font-black text-gray-800 mb-6 lg:mb-10 drop-shadow-xl border-b-8 border-pink-200 pb-2 leading-none mt-10" id="completedWordDisplay">
                     字
                 </div>
                 
-                <h2 class="text-2xl sm:text-3xl lg:text-5xl font-black text-pink-600 mb-6 flex items-center gap-3">
+                <h2 class="text-2xl sm:text-4xl lg:text-5xl font-black text-pink-600 mb-8 flex items-center gap-3">
                     <i class="fa-solid fa-magnifying-glass"></i>
                     請問這個字的「部首」是什麼？
                 </h2>
                 
                 <div id="radicalOptionsBox" class="flex flex-wrap justify-center gap-4 lg:gap-8 w-full max-w-4xl">
-                    <!-- 部首按鈕由 JS 生成 -->
+                    <!-- 部首選項由 JS 生成 -->
                 </div>
             </div>
 
@@ -150,19 +160,19 @@
 
     <!-- 答對/答錯 回饋彈窗 -->
     <div id="feedbackModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 hidden pointer-events-none">
-        <div class="bg-white rounded-[2rem] lg:rounded-[3rem] p-8 lg:p-14 flex flex-col items-center shadow-2xl animate-popIn pointer-events-auto">
-            <div id="feedbackIcon" class="text-[5rem] lg:text-[8rem] mb-2"></div>
-            <h2 id="feedbackText" class="text-3xl lg:text-5xl font-black"></h2>
+        <div class="bg-white rounded-[2rem] lg:rounded-[3rem] p-10 lg:p-16 flex flex-col items-center shadow-2xl animate-popIn pointer-events-auto">
+            <div id="feedbackIcon" class="text-[6rem] lg:text-[10rem] mb-4"></div>
+            <h2 id="feedbackText" class="text-4xl lg:text-6xl font-black"></h2>
         </div>
     </div>
 
     <!-- 恭喜過關彈窗 -->
     <div id="completionModal" class="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-[3rem] lg:rounded-[4rem] p-8 lg:p-16 flex flex-col items-center shadow-2xl animate-popIn border-[10px] border-pink-400 max-w-2xl text-center">
-            <i class="fa-solid fa-trophy text-[7rem] lg:text-[10rem] text-yellow-400 mb-4 animate-float"></i>
-            <h2 class="text-4xl lg:text-6xl font-black text-pink-600 mb-3 drop-shadow-sm">恭喜過關！</h2>
-            <p class="text-xl lg:text-2xl font-bold text-gray-600 mb-8">你已經完成此關卡！</p>
-            <button onclick="window.location.href='index.html'" class="bg-gradient-to-r from-pink-500 to-rose-500 text-white text-2xl lg:text-3xl font-black py-4 px-10 rounded-full shadow-xl hover:shadow-2xl hover:scale-105 transition-all">
+        <div class="bg-white rounded-[3rem] lg:rounded-[4rem] p-10 lg:p-20 flex flex-col items-center shadow-2xl animate-popIn border-[10px] border-pink-400 max-w-2xl text-center">
+            <i class="fa-solid fa-trophy text-[8rem] lg:text-[12rem] text-yellow-400 mb-6 animate-float"></i>
+            <h2 class="text-5xl lg:text-7xl font-black text-pink-600 mb-4 drop-shadow-sm">恭喜過關！</h2>
+            <p class="text-2xl lg:text-3xl font-bold text-gray-600 mb-10">你已經完成此關卡！</p>
+            <button onclick="window.location.href='index.html'" class="bg-gradient-to-r from-pink-500 to-rose-500 text-white text-3xl lg:text-4xl font-black py-4 px-12 rounded-full shadow-xl hover:shadow-2xl hover:scale-105 transition-all">
                 回到大廳
             </button>
         </div>
@@ -236,9 +246,9 @@
         function loadWord() {
             document.getElementById('assemblyStage').classList.remove('hidden');
             document.getElementById('radicalStage').classList.add('hidden');
-            document.getElementById('finishBtn').classList.add('hidden');
+            document.getElementById('finishBtn').classList.add('hidden'); 
             
-            // 清空田字格並保留十字線
+            // 重置田字格
             document.getElementById('targetBox').innerHTML = `
                 <div class="absolute inset-0 pointer-events-none flex flex-col justify-center items-center z-0">
                     <div class="w-full h-[2px] bg-gray-300 border-dashed"></div>
@@ -258,10 +268,10 @@
             currentOptions.forEach((comp) => {
                 const pieceDiv = document.createElement('div');
                 const isImage = comp.toLowerCase().endsWith('.png') || comp.toLowerCase().endsWith('.jpg');
-                const paddingClass = isImage ? 'p-2 sm:p-3' : 'p-3 sm:p-6';
+                const paddingClass = isImage ? 'p-1 lg:p-3' : 'p-3 lg:p-6';
 
-                // 右側待選卡片調大 (加大到 w-32 h-32 至 w-44 h-44)
-                pieceDiv.className = `draggable-piece touch-none w-32 h-32 sm:w-36 sm:h-36 lg:w-44 lg:h-44 bg-white border-4 border-gray-200 rounded-2xl lg:rounded-3xl shadow-md hover:shadow-xl hover:border-blue-400 cursor-grab active:cursor-grabbing flex items-center justify-center text-5xl lg:text-8xl font-bold text-gray-700 z-10 ${paddingClass} relative transition-shadow`;
+                // 尺寸加大
+                pieceDiv.className = `draggable-piece touch-none w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 bg-white border-4 border-gray-200 rounded-2xl lg:rounded-3xl shadow-md hover:shadow-xl hover:border-blue-400 cursor-grab active:cursor-grabbing flex items-center justify-center text-4xl lg:text-7xl font-bold text-gray-700 z-10 ${paddingClass} relative`;
                 
                 pieceDiv.innerHTML = renderPieceContent(comp);
                 pieceDiv.dataset.compContent = comp; 
@@ -271,6 +281,9 @@
             });
         }
 
+        // ==========================================
+        // 全域觸控拖曳系統 (自由定位修復版)
+        // ==========================================
         let draggedPiece = null;
         let shiftX = 0;
         let shiftY = 0;
@@ -282,34 +295,30 @@
             
             draggedPiece = e.currentTarget;
             
-            // 計算抓取位置相對座標
+            // 記錄滑鼠點擊圖片時的精確相對位置 (維持手感)
             const rect = draggedPiece.getBoundingClientRect();
             shiftX = e.clientX - rect.left;
             shiftY = e.clientY - rect.top;
-
-            // 在原位置建立占位元素防止選單塌陷
+            
+            // 拔起時恢復外觀 (如果本來在田字格內)
+            draggedPiece.classList.remove('in-target');
+            
+            // 創建佔位符避免版面跳動
             placeholder = document.createElement('div');
             placeholder.className = draggedPiece.className;
             placeholder.style.visibility = 'hidden';
             draggedPiece.parentNode.insertBefore(placeholder, draggedPiece);
             
-            // 移到 body 層級拖曳
+            // 將元素移至 body 層級，確保拖曳不被容器限制
             document.body.appendChild(draggedPiece);
             
-            // ★ 核心升級：拖動時套用透明樣式（消除白底、消除邊框、放大部件尺寸）
+            // 進入拖曳狀態
             draggedPiece.classList.add('is-dragging');
-            // 放大拖曳中的部件容器大小 (由原本 tiny 尺寸升級至大螢幕放大版)
-            draggedPiece.style.width = '240px';
-            draggedPiece.style.height = '240px';
-            if (window.innerWidth >= 1024) {
-                draggedPiece.style.width = '340px';
-                draggedPiece.style.height = '340px';
-            }
+            draggedPiece.style.position = 'fixed';
+            draggedPiece.style.zIndex = '9999';
+            draggedPiece.style.margin = '0';
             
-            // 將按壓偏移量重新根據新尺寸微調置中，讓手指/游標剛好抓在圖片中心附近
-            shiftX = parseInt(draggedPiece.style.width) / 2;
-            shiftY = parseInt(draggedPiece.style.height) / 2;
-
+            // 立即將元素定位到滑鼠下方
             moveAt(e.clientX, e.clientY);
         }
 
@@ -320,6 +329,7 @@
         }
 
         function moveAt(pageX, pageY) {
+            // 確保拖曳時，圖片始終跟隨滑鼠
             draggedPiece.style.left = (pageX - shiftX) + 'px';
             draggedPiece.style.top = (pageY - shiftY) + 'px';
         }
@@ -327,7 +337,7 @@
         function onPointerUp(e) {
             if (!draggedPiece) return;
             
-            // 清理拖曳狀態
+            // 清理拖曳專用樣式
             draggedPiece.classList.remove('is-dragging');
             draggedPiece.style.position = '';
             draggedPiece.style.left = '';
@@ -335,39 +345,42 @@
             draggedPiece.style.zIndex = '';
             draggedPiece.style.margin = '';
             
+            // 尋找滑鼠下方的元素 (先暫時隱藏被拖曳的物件，以免擋住偵測)
+            draggedPiece.style.display = 'none';
             const elemBelow = document.elementFromPoint(e.clientX, e.clientY);
+            draggedPiece.style.display = '';
+            
             const targetBox = document.getElementById('targetBox');
             const optionsBox = document.getElementById('optionsBox');
             
-            // 判斷是否落在紅框(田字格)區域
+            // 判斷是否落在紅框(目標區)
             if (elemBelow && (elemBelow === targetBox || targetBox.contains(elemBelow))) {
+                
+                // ★ 關鍵修復：將物件加入目標區
                 targetBox.appendChild(draggedPiece);
                 draggedPiece.classList.add('in-target');
                 
-                // 設定大尺寸 (田字格組裝時部件大小大增)
-                draggedPiece.style.width = '240px';
-                draggedPiece.style.height = '240px';
-                if (window.innerWidth >= 1024) {
-                    draggedPiece.style.width = '340px';
-                    draggedPiece.style.height = '340px';
-                }
-
-                // 計算田字格內的相對座標
+                // 取得目標框的邊界資訊
                 const boxRect = targetBox.getBoundingClientRect();
+                
+                // 計算相對於 targetBox 左上角的精確座標
+                // 公式：滑鼠當前 X 座標 - targetBox 左邊界 X 座標 - 原本點擊圖片內的偏移量
                 let newLeft = e.clientX - boxRect.left - shiftX;
                 let newTop = e.clientY - boxRect.top - shiftY;
                 
+                // 套用絕對位置，確保圖片完美停留在放開滑鼠的那一刻的位置
                 draggedPiece.style.left = newLeft + 'px';
                 draggedPiece.style.top = newTop + 'px';
                 
             } else {
-                // 如果落在外面，退回待選區 (恢復白色卡片外觀與大小)
+                // 如果落在外面，退回藍框
                 optionsBox.appendChild(draggedPiece);
                 draggedPiece.classList.remove('in-target');
-                draggedPiece.style.width = '';
-                draggedPiece.style.height = '';
+                draggedPiece.style.left = '';
+                draggedPiece.style.top = '';
             }
             
+            // 移除佔位符
             if (placeholder && placeholder.parentNode) {
                 placeholder.parentNode.removeChild(placeholder);
             }
@@ -382,6 +395,9 @@
         document.addEventListener('pointerup', onPointerUp);
         document.addEventListener('pointercancel', onPointerUp);
 
+        // ==========================================
+        // 遊戲流程控制
+        // ==========================================
         function checkAssemblyState() {
             const currentData = lessonData[currentWordIndex];
             const targetBox = document.getElementById('targetBox');
@@ -467,13 +483,13 @@
             feedbackModal.classList.remove('hidden');
             
             if (isCorrect) {
-                feedbackIcon.className = "text-[5rem] lg:text-[8rem] mb-2 text-green-500";
+                feedbackIcon.className = "text-[6rem] lg:text-[10rem] mb-4 text-green-500";
                 feedbackIcon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
-                feedbackText.className = "text-3xl lg:text-5xl font-black text-green-600";
+                feedbackText.className = "text-4xl lg:text-6xl font-black text-green-600";
             } else {
-                feedbackIcon.className = "text-[5rem] lg:text-[8rem] mb-2 text-red-500 animate-shake";
+                feedbackIcon.className = "text-[6rem] lg:text-[10rem] mb-4 text-red-500 animate-shake";
                 feedbackIcon.innerHTML = '<i class="fa-solid fa-circle-xmark"></i>';
-                feedbackText.className = "text-3xl lg:text-5xl font-black text-red-600";
+                feedbackText.className = "text-4xl lg:text-6xl font-black text-red-600";
             }
             feedbackText.textContent = message;
 
