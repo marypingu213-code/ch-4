@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>第一關：部件組合</title>
-    <!-- 引入題庫資料 (重要！) -->
+    <!-- 引入題庫資料 -->
     <script src="data_lesson1.js"></script>
     
     <!-- 引入 Tailwind CSS 與 FontAwesome -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* 基礎樣式設定 - 全面改用標楷體 (BiaoKai/DFKai-SB) */
+        /* 基礎樣式設定 - 標楷體 */
         body {
             font-family: 'BiaoKai', 'DFKai-SB', '楷體-繁', 'Kaiti TC', serif;
             background-color: #fdf4ff; 
@@ -52,7 +52,16 @@
             z-index: 20 !important;
         }
 
-        .draggable-piece.in-target img {
+        /* ★ 新增：正在拖曳時的統一樣式 (強迫透明，拔起瞬間就能方便對準) */
+        .draggable-piece.is-dragging {
+            background: transparent !important;
+            border-color: transparent !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        .draggable-piece img {
             width: 100% !important;
             height: 100% !important;
             object-fit: contain !important; 
@@ -194,7 +203,7 @@
         const renderPieceContent = (content) => {
             const lowerContent = content.toLowerCase();
             if (lowerContent.endsWith('.png') || lowerContent.endsWith('.jpg') || lowerContent.endsWith('.jpeg')) {
-                return `<img src="${content}" alt="部件" class="w-full h-full object-contain pointer-events-none" onerror='this.outerHTML="<div class=\\"text-xs lg:text-sm text-red-500 font-bold break-all p-1 leading-tight flex items-center justify-center text-center w-full h-full font-sans\\">找不到圖片:<br>${content}</div>"'>`;
+                return `<img src="${content}" alt="部件" onerror='this.outerHTML="<div class=\\"text-xs lg:text-sm text-red-500 font-bold break-all p-1 leading-tight flex items-center justify-center text-center w-full h-full font-sans\\">找不到圖片:<br>${content}</div>"'>`;
             } else {
                 return content;
             }
@@ -248,14 +257,18 @@
             
             draggedPiece = e.currentTarget;
             
+            // ★ 修復核心：抓起物件時，馬上加上「正在拖曳」的透明樣式
+            draggedPiece.classList.add('is-dragging');
+            
+            // 讀取套用透明樣式後的精確位置，才不會跳格
             const rect = draggedPiece.getBoundingClientRect();
             shiftX = e.clientX - rect.left;
             shiftY = e.clientY - rect.top;
             
-            draggedPiece.classList.remove('in-target');
-            
             placeholder = document.createElement('div');
             placeholder.className = draggedPiece.className;
+            // 讓原地留下的佔位符號保持白底外觀
+            placeholder.classList.remove('is-dragging', 'in-target');
             placeholder.style.visibility = 'hidden';
             draggedPiece.parentNode.insertBefore(placeholder, draggedPiece);
             
@@ -263,7 +276,6 @@
             
             draggedPiece.style.position = 'fixed';
             draggedPiece.style.zIndex = '9999';
-            draggedPiece.style.margin = '0';
             draggedPiece.style.pointerEvents = 'none';
             
             moveAt(e.clientX, e.clientY);
@@ -287,11 +299,13 @@
             const elemBelow = document.elementFromPoint(e.clientX, e.clientY);
             draggedPiece.style.display = '';
             
+            // ★ 放開時移除「正在拖曳」的樣式
+            draggedPiece.classList.remove('is-dragging');
+
             draggedPiece.style.position = '';
             draggedPiece.style.left = '';
             draggedPiece.style.top = '';
             draggedPiece.style.zIndex = '';
-            draggedPiece.style.margin = '';
             draggedPiece.style.pointerEvents = 'auto'; 
             
             const targetBox = document.getElementById('targetBox');
