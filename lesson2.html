@@ -46,9 +46,9 @@
         }
     </style>
 </head>
-<body class="h-screen w-screen text-gray-800 flex flex-col items-center justify-center p-2 lg:p-6">
+<body class="h-screen w-screen text-gray-800 flex flex-col items-center justify-center p-2 lg:p-4">
 
-    <div class="w-full h-full max-w-[1800px] max-h-[1200px] bg-white/95 backdrop-blur-sm p-4 sm:p-6 lg:p-10 rounded-[2rem] lg:rounded-[3rem] shadow-2xl relative border-4 lg:border-8 border-blue-200 flex flex-col">
+    <div class="w-full h-full max-w-[1800px] max-h-[1200px] bg-white/95 backdrop-blur-sm p-3 sm:p-6 lg:p-8 rounded-[2rem] lg:rounded-[3rem] shadow-2xl relative border-4 lg:border-8 border-blue-200 flex flex-col">
         
         <a href="index.html" class="absolute top-4 left-4 lg:top-6 lg:left-6 text-gray-400 hover:text-blue-600 transition-colors text-xl lg:text-2xl font-bold flex items-center gap-2 no-underline z-20">
             <i class="fa-solid fa-arrow-left font-sans"></i> 回大廳
@@ -66,31 +66,31 @@
 
         <div id="gameScreen" class="hidden flex-grow flex-col items-center w-full relative z-10">
             
-            <button onclick="backToSelection()" class="absolute top-0 right-2 lg:top-2 lg:right-2 bg-blue-100 text-blue-600 hover:bg-blue-200 px-4 py-2 rounded-full font-bold text-lg lg:text-xl transition-colors z-30">
+            <button onclick="backToSelection()" class="absolute top-0 right-2 lg:top-0 lg:right-2 bg-blue-100 text-blue-600 hover:bg-blue-200 px-4 py-2 rounded-full font-bold text-base lg:text-lg transition-colors z-30">
                 <i class="fa-solid fa-rotate-left font-sans mr-1"></i> 重選課次
             </button>
 
-            <div class="text-center w-full mb-4 lg:mb-6 mt-12 lg:mt-6">
+            <div class="text-center w-full mb-2 lg:mb-4 mt-8 lg:mt-2">
                 <h2 id="currentLessonTitle" class="text-2xl lg:text-4xl font-bold text-blue-500 mb-2 tracking-widest">第一課</h2>
-                <div class="w-full max-w-3xl mx-auto bg-gray-200 rounded-full h-3 lg:h-4 overflow-hidden shadow-inner mt-2">
+                <div class="w-full max-w-3xl mx-auto bg-gray-200 rounded-full h-3 lg:h-4 overflow-hidden shadow-inner mt-1">
                     <div id="progressBar" class="bg-gradient-to-r from-blue-400 to-cyan-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
                 </div>
                 <p id="progressText" class="text-base lg:text-lg text-gray-400 font-bold mt-1 text-center font-sans">0 / 0</p>
             </div>
 
-            <div class="flex-grow flex flex-col w-full gap-4 lg:gap-8 relative z-10 px-2 lg:px-10 max-w-6xl mx-auto">
+            <div class="flex-grow flex flex-col w-full gap-2 lg:gap-4 relative z-10 px-2 lg:px-8 max-w-5xl mx-auto pb-2">
                 
-                <div class="w-full bg-blue-50/80 border-[4px] border-blue-200 rounded-[2rem] p-4 lg:p-8 flex flex-col gap-3 lg:gap-4" id="targetArea">
-                    <div class="text-blue-500 font-black text-xl lg:text-3xl mb-1 flex items-center gap-3">
+                <div class="w-full bg-blue-50/80 border-[4px] border-blue-200 rounded-[1.5rem] lg:rounded-[2rem] p-3 lg:p-5 flex flex-col gap-2 lg:gap-3" id="targetArea">
+                    <div class="text-blue-500 font-black text-xl lg:text-2xl mb-1 flex items-center gap-3">
                         <i class="fa-solid fa-layer-group font-sans"></i> 組合區
                     </div>
                     </div>
 
-                <div class="w-full bg-gray-50 border-[4px] border-gray-200 rounded-[2rem] p-4 lg:p-8 flex flex-wrap justify-center items-center gap-4 min-h-[120px] lg:min-h-[160px]" id="optionsArea">
+                <div class="w-full bg-gray-50 border-[4px] border-gray-200 rounded-[1.5rem] lg:rounded-[2rem] p-3 lg:p-5 flex flex-wrap justify-center items-center gap-3 lg:gap-4 min-h-[100px] lg:min-h-[130px]" id="optionsArea">
                     </div>
 
-                <div class="w-full flex justify-center mt-2 h-[60px]">
-                    <button id="finishBtn" onclick="checkAnswer()" class="hidden bg-green-500 hover:bg-green-600 text-white text-2xl lg:text-4xl font-bold py-3 px-12 rounded-full shadow-lg transition-transform hover:scale-105 active:scale-95 tracking-widest">
+                <div class="w-full flex justify-center mt-1 h-[50px]">
+                    <button id="finishBtn" onclick="checkAnswer()" class="hidden bg-green-500 hover:bg-green-600 text-white text-xl lg:text-3xl font-bold py-2 px-10 rounded-full shadow-lg transition-transform hover:scale-105 active:scale-95 tracking-widest">
                         <i class="fa-solid fa-check mr-2 font-sans"></i> 我排好了
                     </button>
                 </div>
@@ -206,16 +206,16 @@
             const targetArea = document.getElementById('targetArea');
             const optionsArea = document.getElementById('optionsArea');
             
-            targetArea.innerHTML = `<div class="text-blue-500 font-black text-xl lg:text-3xl mb-1 flex items-center gap-3"><i class="fa-solid fa-layer-group font-sans"></i> 組合區</div>`;
+            targetArea.innerHTML = `<div class="text-blue-500 font-black text-xl lg:text-2xl mb-1 flex items-center gap-3"><i class="fa-solid fa-layer-group font-sans"></i> 組合區</div>`;
             optionsArea.innerHTML = '';
 
             const currentData = currentQuestions[currentQuestionIndex];
             originalOrder = currentData.sentence; 
             
-            // 建立插槽
+            // 建立插槽 (高度調降，文字縮小)
             originalOrder.forEach((_, index) => {
                 const slot = document.createElement('div');
-                slot.className = "drop-slot w-full h-[70px] lg:h-[90px] border-4 border-dashed border-gray-300 rounded-xl flex items-center justify-center text-gray-400 font-bold text-lg lg:text-2xl bg-white/50 tracking-widest transition-colors";
+                slot.className = "drop-slot w-full h-[50px] sm:h-[60px] lg:h-[75px] border-4 border-dashed border-gray-300 rounded-xl flex items-center justify-center text-gray-400 font-bold text-base lg:text-xl bg-white/50 tracking-widest transition-colors";
                 slot.dataset.slotIndex = index;
                 slot.innerHTML = `<span>放這裡 (${index + 1})</span>`;
                 targetArea.appendChild(slot);
@@ -226,7 +226,8 @@
             
             shuffledPhrases.forEach((phrase) => {
                 const card = document.createElement('div');
-                card.className = "sentence-card touch-none bg-white border-4 border-blue-400 text-blue-800 rounded-xl lg:rounded-2xl px-4 py-3 lg:px-6 lg:py-4 text-2xl lg:text-4xl font-bold shadow-sm cursor-grab active:cursor-grabbing text-center min-w-[150px] flex items-center justify-center tracking-wide";
+                // 字卡 padding 調小，字體調小
+                card.className = "sentence-card touch-none bg-white border-4 border-blue-400 text-blue-800 rounded-xl px-4 py-2 lg:px-6 lg:py-3 text-xl lg:text-3xl font-bold shadow-sm cursor-grab active:cursor-grabbing text-center min-w-[120px] flex items-center justify-center tracking-wide";
                 card.textContent = phrase;
                 card.dataset.phrase = phrase;
                 card.addEventListener('pointerdown', onPointerDown);
