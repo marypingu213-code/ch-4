@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>第三關：改錯字</title>
-    <!-- 引入第三關專屬題庫 -->
-    <script src="data_lesson3.js"></script>
+    <script src="data_lesson3.js?v=3"></script>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -16,7 +15,7 @@
             background-image: radial-gradient(#e9d5ff 3px, transparent 3px);
             background-size: 40px 40px;
             user-select: none; 
-            overflow: hidden; /* 強制鎖死畫面 */
+            overflow: hidden; 
         }
 
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
@@ -28,7 +27,6 @@
         @keyframes popIn { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
         .animate-popIn { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
 
-        /* 單個字塊的樣式 */
         .char-tile {
             transition: all 0.2s ease;
         }
@@ -37,50 +35,60 @@
         }
     </style>
 </head>
-<body class="h-screen w-screen text-gray-800 flex flex-col items-center justify-center p-2 lg:p-6">
+<body class="h-screen w-screen text-gray-800 flex flex-col items-center justify-center p-2 lg:p-4">
 
-    <!-- 縮小了外層的 padding (p-4 sm:p-6 lg:p-8) 以爭取更多內部空間 -->
-    <div class="w-full h-full max-w-[1600px] max-h-[1200px] bg-white/95 backdrop-blur-sm p-4 sm:p-6 lg:p-8 rounded-[2rem] lg:rounded-[3rem] shadow-2xl relative border-4 lg:border-8 border-purple-200 flex flex-col">
+    <div class="w-full h-full max-w-[1800px] max-h-[1200px] bg-white/95 backdrop-blur-sm p-3 sm:p-6 lg:p-8 rounded-[2rem] lg:rounded-[3rem] shadow-2xl relative border-4 lg:border-8 border-purple-200 flex flex-col">
         
-        <a href="index.html" class="absolute top-4 left-4 lg:top-6 lg:left-6 text-gray-400 hover:text-purple-600 transition-colors text-xl lg:text-2xl font-bold flex items-center gap-2 no-underline z-10">
+        <a href="index.html" class="absolute top-4 left-4 lg:top-6 lg:left-6 text-gray-400 hover:text-purple-600 transition-colors text-xl lg:text-2xl font-bold flex items-center gap-2 no-underline z-20">
             <i class="fa-solid fa-arrow-left font-sans"></i> 回大廳
         </a>
 
-        <!-- 進度條 (縮小了 margin-top 與 margin-bottom) -->
-        <div class="text-center mb-2 mt-8 lg:mt-2">
-            <div class="w-full max-w-3xl mx-auto bg-gray-200 rounded-full h-3 lg:h-4 overflow-hidden shadow-inner">
-                <div id="progressBar" class="bg-gradient-to-r from-purple-400 to-fuchsia-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
-            </div>
-            <p id="progressText" class="text-base lg:text-lg text-gray-400 font-bold mt-1 text-center font-sans">0 / 0</p>
-        </div>
-
-        <!-- 主內容區 (改為 justify-center 並使用 gap 控制間距，讓物件緊密靠攏) -->
-        <div class="flex-grow flex flex-col items-center justify-center w-full relative z-10 gap-4 lg:gap-6 pb-2">
+        <div id="lessonSelectionScreen" class="flex-grow flex flex-col items-center justify-center w-full z-10 pb-8">
+            <h1 class="text-5xl lg:text-7xl font-black text-purple-500 mb-12 drop-shadow-sm flex items-center gap-4 tracking-widest">
+                <i class="fa-solid fa-eraser text-purple-300 font-sans"></i>
+                請選擇課次
+            </h1>
             
-            <!-- 提示文字 (微調 padding 讓高度變小) -->
-            <div id="instructionText" class="text-3xl lg:text-5xl text-purple-700 font-black bg-purple-100 px-8 py-3 rounded-full shadow-sm animate-float tracking-widest">
-                請點擊句子中的「錯字」！
-            </div>
-
-            <!-- 句子顯示區 (縮小 padding，讓長句子換行時更省空間) -->
-            <div id="sentenceArea" class="flex flex-wrap justify-center gap-2 lg:gap-3 p-4 lg:p-6 bg-purple-50/50 border-4 border-dashed border-purple-200 rounded-[2rem] w-full max-w-5xl">
-                <!-- 字塊由 JS 生成 -->
-            </div>
-
-            <!-- 選項區 (緊貼著句子區) -->
-            <div id="optionsArea" class="hidden w-full flex flex-col items-center gap-4">
-                <div class="text-2xl lg:text-4xl text-gray-600 font-bold border-b-4 border-fuchsia-200 pb-2 tracking-widest">
-                    請問正確的字是哪一個？
+            <div id="lessonGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-10 w-full max-w-6xl px-6">
                 </div>
-                <div id="choicesBox" class="flex justify-center gap-3 lg:gap-6">
-                    <!-- 選項按鈕由 JS 生成 -->
-                </div>
-            </div>
-
         </div>
+
+        <div id="gameScreen" class="hidden flex-grow flex-col items-center w-full relative z-10">
+            
+            <button onclick="backToSelection()" class="absolute top-0 right-2 lg:top-0 lg:right-2 bg-purple-100 text-purple-600 hover:bg-purple-200 px-4 py-2 rounded-full font-bold text-base lg:text-lg transition-colors z-30">
+                <i class="fa-solid fa-rotate-left font-sans mr-1"></i> 重選課次
+            </button>
+
+            <div class="text-center w-full mb-2 lg:mb-4 mt-8 lg:mt-2">
+                <h2 id="currentLessonTitle" class="text-2xl lg:text-4xl font-bold text-purple-500 mb-2 tracking-widest">第一課</h2>
+                <div class="w-full max-w-3xl mx-auto bg-gray-200 rounded-full h-3 lg:h-4 overflow-hidden shadow-inner mt-1">
+                    <div id="progressBar" class="bg-gradient-to-r from-purple-400 to-fuchsia-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+                <p id="progressText" class="text-base lg:text-lg text-gray-400 font-bold mt-1 text-center font-sans">0 / 0</p>
+            </div>
+
+            <div class="flex-grow flex flex-col items-center justify-center w-full relative z-10 gap-3 lg:gap-6 pb-2 max-w-6xl mx-auto">
+                
+                <div id="instructionText" class="text-2xl lg:text-4xl text-purple-700 font-black bg-purple-100 px-6 py-2 lg:px-8 lg:py-3 rounded-full shadow-sm animate-float tracking-widest">
+                    請點擊句子中的「錯字」！
+                </div>
+
+                <div id="sentenceArea" class="flex flex-wrap justify-center gap-2 lg:gap-3 p-4 lg:p-6 bg-purple-50/50 border-4 border-dashed border-purple-200 rounded-[1.5rem] lg:rounded-[2rem] w-full">
+                    </div>
+
+                <div id="optionsArea" class="hidden w-full flex flex-col items-center gap-3 lg:gap-4 mt-2">
+                    <div class="text-xl lg:text-3xl text-gray-600 font-bold border-b-4 border-fuchsia-200 pb-1 tracking-widest">
+                        請問正確的字是哪一個？
+                    </div>
+                    <div id="choicesBox" class="flex justify-center gap-3 lg:gap-6">
+                        </div>
+                </div>
+
+            </div>
+        </div>
+
     </div>
 
-    <!-- 答對/答錯 回饋彈窗 -->
     <div id="feedbackModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 hidden pointer-events-none">
         <div class="bg-white rounded-[2rem] lg:rounded-[3rem] p-10 lg:p-16 flex flex-col items-center shadow-2xl pointer-events-auto transition-transform">
             <div id="feedbackIcon" class="text-[6rem] lg:text-[10rem] mb-4"></div>
@@ -88,34 +96,92 @@
         </div>
     </div>
 
-    <!-- 恭喜過關彈窗 -->
     <div id="completionModal" class="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 hidden">
         <div class="bg-white rounded-[3rem] lg:rounded-[4rem] p-10 lg:p-20 flex flex-col items-center shadow-2xl border-[10px] border-purple-400 max-w-2xl text-center">
             <i class="fa-solid fa-crown text-[8rem] lg:text-[12rem] text-yellow-400 mb-6 animate-float font-sans"></i>
             <h2 class="text-5xl lg:text-7xl font-black text-purple-600 mb-4 drop-shadow-sm tracking-widest">太厲害了！</h2>
-            <p class="text-2xl lg:text-3xl font-bold text-gray-600 mb-10">你已成功找出所有錯字！</p>
-            <button onclick="window.location.href='index.html'" class="bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white text-3xl lg:text-4xl font-black py-4 px-12 rounded-full shadow-xl hover:shadow-2xl hover:scale-105 transition-all tracking-widest">
-                回到大廳
-            </button>
+            <p class="text-2xl lg:text-3xl font-bold text-gray-600 mb-10">你已成功找出本課所有錯字！</p>
+            <div class="flex gap-4 justify-center">
+                <button onclick="backToSelection()" class="bg-purple-100 text-purple-600 border-4 border-purple-300 text-2xl lg:text-3xl font-black py-4 px-8 rounded-full shadow-lg hover:scale-105 transition-all tracking-widest">
+                    選其他課
+                </button>
+                <button onclick="window.location.href='index.html'" class="bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white text-2xl lg:text-3xl font-black py-4 px-8 rounded-full shadow-lg hover:scale-105 transition-all tracking-widest">
+                    回大廳
+                </button>
+            </div>
         </div>
     </div>
 
     <script>
         if (typeof lessonData3 === 'undefined') {
-            alert("題庫載入失敗！請確認 'data_lesson3.js' 檔案是否存在。");
+            alert("題庫載入失敗！請確認 'data_lesson3.js' 檔案是否正確。");
         }
 
-        let shuffledQuestions = [];
+        let currentLessonKey = "";
+        let currentQuestions = [];
         let currentQuestionIndex = 0;
         let isWaitingForCorrection = false; 
 
         window.onload = () => {
             if (typeof lessonData3 !== 'undefined') {
-                // 隨機打亂所有題目
-                shuffledQuestions = [...lessonData3].sort(() => Math.random() - 0.5);
-                initGame();
+                renderLessonSelection();
             }
         };
+
+        // 產生 1~12 課的按鈕
+        function renderLessonSelection() {
+            const lessonGrid = document.getElementById('lessonGrid');
+            lessonGrid.innerHTML = '';
+            
+            for (let i = 1; i <= 12; i++) {
+                const lessonKey = `lesson${i}`;
+                const hasQuestions = lessonData3[lessonKey] && lessonData3[lessonKey].length > 0;
+                
+                const btn = document.createElement('button');
+                
+                if (hasQuestions) {
+                    btn.className = "bg-white border-4 border-purple-300 text-purple-600 text-3xl lg:text-5xl font-black py-8 lg:py-12 rounded-2xl lg:rounded-[2.5rem] shadow-lg hover:bg-purple-50 hover:shadow-2xl transition-transform hover:-translate-y-2 tracking-widest";
+                    btn.innerText = `第 ${i} 課`;
+                    btn.onclick = () => startLesson(lessonKey, i);
+                } else {
+                    btn.className = "bg-gray-100 border-4 border-gray-200 text-gray-400 text-3xl lg:text-5xl font-black py-8 lg:py-12 rounded-2xl lg:rounded-[2.5rem] shadow-sm cursor-not-allowed tracking-widest relative overflow-hidden";
+                    btn.innerHTML = `第 ${i} 課 <span class="absolute text-sm bg-gray-300 text-white px-3 py-1 rounded-full bottom-3 right-3 font-sans shadow-inner">無題目</span>`;
+                }
+                
+                lessonGrid.appendChild(btn);
+            }
+        }
+
+        function startLesson(lessonKey, lessonNumber) {
+            currentLessonKey = lessonKey;
+            // 打亂該課的題目順序
+            currentQuestions = [...lessonData3[lessonKey]].sort(() => Math.random() - 0.5);
+            currentQuestionIndex = 0;
+
+            document.getElementById('currentLessonTitle').innerText = `第 ${lessonNumber} 課`;
+            
+            document.getElementById('lessonSelectionScreen').classList.add('hidden');
+            document.getElementById('lessonSelectionScreen').classList.remove('flex');
+            
+            const gameScreen = document.getElementById('gameScreen');
+            gameScreen.classList.remove('hidden');
+            gameScreen.classList.add('flex', 'animate-popIn');
+            
+            document.getElementById('completionModal').classList.add('hidden');
+
+            initGame();
+        }
+
+        function backToSelection() {
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('flex');
+            
+            const selectionScreen = document.getElementById('lessonSelectionScreen');
+            selectionScreen.classList.remove('hidden');
+            selectionScreen.classList.add('flex', 'animate-popIn');
+            
+            document.getElementById('completionModal').classList.add('hidden');
+        }
 
         function initGame() {
             updateProgress();
@@ -125,37 +191,35 @@
         function updateProgress() {
             const progressBar = document.getElementById('progressBar');
             const progressText = document.getElementById('progressText');
-            const percentage = (currentQuestionIndex / shuffledQuestions.length) * 100;
+            const percentage = (currentQuestionIndex / currentQuestions.length) * 100;
             progressBar.style.width = percentage + '%';
-            progressText.innerText = (currentQuestionIndex + 1) + ' / ' + shuffledQuestions.length;
+            progressText.innerText = (currentQuestionIndex + 1) + ' / ' + currentQuestions.length;
         }
 
         function loadQuestion() {
             isWaitingForCorrection = false;
             
-            // 重置介面狀態
             document.getElementById('optionsArea').classList.add('hidden');
             const instructionText = document.getElementById('instructionText');
             instructionText.innerText = '請點擊句子中的「錯字」！';
-            instructionText.className = "text-3xl lg:text-5xl text-purple-700 font-black bg-purple-100 px-8 py-3 rounded-full shadow-sm animate-float tracking-widest";
+            instructionText.className = "text-2xl lg:text-4xl text-purple-700 font-black bg-purple-100 px-6 py-2 lg:px-8 lg:py-3 rounded-full shadow-sm animate-float tracking-widest";
 
             const sentenceArea = document.getElementById('sentenceArea');
             sentenceArea.innerHTML = '';
 
-            const currentData = shuffledQuestions[currentQuestionIndex];
+            const currentData = currentQuestions[currentQuestionIndex];
             
-            // 將句子拆成單一字元並生成字塊
             const chars = currentData.sentence.split('');
             chars.forEach((char) => {
                 const charBox = document.createElement('div');
-                // 標點符號不做成按鈕，單純顯示文字
                 const isPunctuation = /[\u3002\uff0c\uff1f\uff01\u3001\u3008\u3009\u300a\u300b\u300c\u300d\u300e\u300f\u2014\u2013\u2026\u2025\uFE30-\uFE4F]/.test(char);
                 
                 if (isPunctuation) {
-                    charBox.className = "text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-500 flex items-end pb-2";
+                    charBox.className = "text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-500 flex items-end pb-1";
                     charBox.innerText = char;
                 } else {
-                    charBox.className = "char-tile w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 bg-white border-4 border-gray-300 rounded-xl lg:rounded-2xl shadow-sm flex items-center justify-center text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-800 cursor-pointer hover:border-purple-400 hover:bg-purple-50 flex-shrink-0";
+                    // 字塊微調縮小以適應畫面
+                    charBox.className = "char-tile w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 bg-white border-[3px] lg:border-4 border-gray-300 rounded-lg lg:rounded-xl shadow-sm flex items-center justify-center text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-800 cursor-pointer hover:border-purple-400 hover:bg-purple-50 flex-shrink-0";
                     charBox.innerText = char;
                     charBox.onclick = () => handleCharClick(charBox, char, currentData.wrongChar);
                 }
@@ -165,18 +229,15 @@
         }
 
         function handleCharClick(element, clickedChar, wrongChar) {
-            if (isWaitingForCorrection) return; // 如果已經在選正確的字了，就鎖定句子不給點
+            if (isWaitingForCorrection) return;
 
             if (clickedChar === wrongChar) {
-                // 點對錯字了！
                 isWaitingForCorrection = true;
                 
-                // 讓錯字變紅並加上明顯的外框
                 element.classList.remove('border-gray-300', 'hover:border-purple-400', 'text-gray-800');
                 element.classList.add('border-red-500', 'bg-red-100', 'text-red-600', 'animate-popIn');
-                element.id = "targetWrongCharBox"; // 標記起來，等一下替換用
+                element.id = "targetWrongCharBox";
 
-                // 更改提示並顯示選項
                 const instructionText = document.getElementById('instructionText');
                 instructionText.innerText = '答對了！請在下方選擇正確的字！';
                 instructionText.classList.replace('text-purple-700', 'text-green-700');
@@ -184,7 +245,6 @@
 
                 showOptions();
             } else {
-                // 點錯了 (點到正確的字)
                 element.classList.add('animate-shake', 'bg-gray-200');
                 setTimeout(() => {
                     element.classList.remove('animate-shake', 'bg-gray-200');
@@ -199,13 +259,13 @@
             optionsArea.classList.add('animate-popIn');
             choicesBox.innerHTML = '';
 
-            const currentData = shuffledQuestions[currentQuestionIndex];
-            // 打亂選項順序
+            const currentData = currentQuestions[currentQuestionIndex];
             let choices = [...currentData.choices].sort(() => Math.random() - 0.5);
 
             choices.forEach(choice => {
                 const btn = document.createElement('button');
-                btn.className = "w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 bg-white border-4 border-fuchsia-300 text-fuchsia-700 text-4xl sm:text-5xl lg:text-6xl font-bold rounded-2xl shadow-md hover:bg-fuchsia-50 hover:border-fuchsia-500 hover:shadow-xl transition-all hover:-translate-y-2 flex items-center justify-center";
+                // 選項按鈕微調縮小
+                btn.className = "w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 bg-white border-[3px] lg:border-4 border-fuchsia-300 text-fuchsia-700 text-3xl sm:text-4xl lg:text-5xl font-bold rounded-xl lg:rounded-2xl shadow-md hover:bg-fuchsia-50 hover:border-fuchsia-500 hover:shadow-xl transition-all hover:-translate-y-1 flex items-center justify-center";
                 btn.innerText = choice;
                 btn.onclick = () => handleCorrectionSelect(choice, currentData.correctChar);
                 choicesBox.appendChild(btn);
@@ -214,9 +274,7 @@
 
         function handleCorrectionSelect(selectedChar, correctChar) {
             if (selectedChar === correctChar) {
-                // 選對正確的字了！
                 const wrongBox = document.getElementById('targetWrongCharBox');
-                // 視覺變更：替換文字，變綠色
                 wrongBox.innerText = correctChar;
                 wrongBox.classList.remove('border-red-500', 'bg-red-100', 'text-red-600');
                 wrongBox.classList.add('border-green-500', 'bg-green-100', 'text-green-600', 'animate-popIn');
@@ -225,15 +283,14 @@
                 
                 setTimeout(() => {
                     currentQuestionIndex++;
-                    if (currentQuestionIndex >= shuffledQuestions.length) {
+                    if (currentQuestionIndex >= currentQuestions.length) {
                         document.getElementById('completionModal').classList.remove('hidden');
                     } else {
-                        loadQuestion();
+                        initGame();
                     }
                 }, 1500);
 
             } else {
-                // 選錯替換字
                 showFeedback(false, "這個字不對喔！");
             }
         }
@@ -246,8 +303,6 @@
 
             feedbackModal.classList.remove('hidden');
             modalBox.classList.remove('animate-shake', 'animate-popIn');
-            
-            // 強制重啟動畫
             void modalBox.offsetWidth;
 
             if (isCorrect) {
