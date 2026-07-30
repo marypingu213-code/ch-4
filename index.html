@@ -13,7 +13,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
         
         body {
-            font-family: 'Noto Sans TC', sans-serif;
+            font-family: 'BiaoKai', 'DFKai-SB', '楷體-繁', 'Kaiti TC', 'Noto Sans TC', sans-serif;
             background-color: #f0fdf4;
             background-image: radial-gradient(#bbf7d0 2px, transparent 2px);
             background-size: 30px 30px;
@@ -46,38 +46,38 @@
     <div class="w-full max-w-4xl bg-white/90 backdrop-blur-sm p-8 md:p-12 rounded-[2.5rem] shadow-2xl flex flex-col items-center">
         <!-- 大廳標題 -->
         <h1 class="text-4xl md:text-6xl font-black text-green-600 mb-4 drop-shadow-md animate-float flex items-center gap-4 text-center">
-            <i class="fa-solid fa-gamepad text-orange-400"></i>
+            <i class="fa-solid fa-gamepad text-orange-400 font-sans"></i>
             國語遊戲大廳
-            <i class="fa-solid fa-gamepad text-yellow-400"></i>
+            <i class="fa-solid fa-gamepad text-yellow-400 font-sans"></i>
         </h1>
-        <p class="text-xl md:text-2xl text-gray-600 mb-10 font-bold border-b-4 border-green-200 pb-2">請選擇要挑戰的關卡！</p>
+        <p class="text-xl md:text-2xl text-gray-600 mb-10 font-bold border-b-4 border-green-200 pb-2 font-sans">請選擇要挑戰的關卡！</p>
         
         <!-- 關卡選單網格 -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-3xl">
             
             <!-- 第一關 (已開放，連結至 lesson1.html) -->
             <a href="lesson1.html" class="block group relative bg-gradient-to-br from-green-400 to-emerald-600 rounded-3xl p-8 text-white shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 border-4 border-white cursor-pointer no-underline">
-                <div class="absolute -top-4 -right-4 bg-yellow-400 text-yellow-900 font-bold px-4 py-1 rounded-full shadow-md animate-bounce-slow z-10">Start!</div>
+                <div class="absolute -top-4 -right-4 bg-yellow-400 text-yellow-900 font-bold px-4 py-1 rounded-full shadow-md animate-bounce-slow z-10 font-sans">Start!</div>
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-3xl font-black group-hover:animate-shake">第一關</h2>
-                    <i class="fa-solid fa-puzzle-piece text-4xl text-green-200 opacity-80"></i>
+                    <i class="fa-solid fa-puzzle-piece text-4xl text-green-200 opacity-80 font-sans"></i>
                 </div>
                 <p class="text-green-100 text-lg font-bold">組合部件與找部首</p>
             </a>
 
-            <!-- 第二關 (範例：如果之後做了 lesson2.html 就可以改連結) -->
-            <div class="block group relative bg-gradient-to-br from-blue-400 to-indigo-600 rounded-3xl p-8 text-white shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 border-4 border-white cursor-pointer opacity-70 hover:opacity-100">
-                <div class="absolute -top-4 -right-4 bg-gray-300 text-gray-700 font-bold px-4 py-1 rounded-full shadow-md z-10 text-sm">準備中</div>
+            <!-- 第二關 (已開放，連結至 lesson2.html) -->
+            <a href="lesson2.html" class="block group relative bg-gradient-to-br from-blue-400 to-indigo-600 rounded-3xl p-8 text-white shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 border-4 border-white cursor-pointer no-underline">
+                <div class="absolute -top-4 -right-4 bg-yellow-400 text-yellow-900 font-bold px-4 py-1 rounded-full shadow-md animate-bounce-slow z-10 font-sans">Start!</div>
                 <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-3xl font-black">第二關</h2>
-                    <i class="fa-solid fa-list-ol text-4xl text-blue-200 opacity-80"></i>
+                    <h2 class="text-3xl font-black group-hover:animate-shake">第二關</h2>
+                    <i class="fa-solid fa-list-ol text-4xl text-blue-200 opacity-80 font-sans"></i>
                 </div>
                 <p class="text-blue-100 text-lg font-bold">句子重組大挑戰</p>
-            </div>
+            </a>
 
             <!-- 第三關 (未開放) -->
             <div class="bg-gray-200 rounded-3xl p-8 text-gray-400 shadow-inner cursor-not-allowed border-4 border-white relative overflow-hidden flex flex-col justify-center">
-                <i class="fa-solid fa-lock absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-6xl text-gray-300 opacity-50 z-0"></i>
+                <i class="fa-solid fa-lock absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-6xl text-gray-300 opacity-50 z-0 font-sans"></i>
                 <div class="relative z-10">
                     <h2 class="text-3xl font-black mb-2">第三關</h2>
                     <p class="text-gray-400 text-lg font-bold">即將開放...</p>
@@ -86,7 +86,7 @@
 
             <!-- 第四關 (未開放) -->
             <div class="bg-gray-200 rounded-3xl p-8 text-gray-400 shadow-inner cursor-not-allowed border-4 border-white relative overflow-hidden flex flex-col justify-center">
-                <i class="fa-solid fa-lock absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-6xl text-gray-300 opacity-50 z-0"></i>
+                <i class="fa-solid fa-lock absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-6xl text-gray-300 opacity-50 z-0 font-sans"></i>
                 <div class="relative z-10">
                     <h2 class="text-3xl font-black mb-2">第四關</h2>
                     <p class="text-gray-400 text-lg font-bold">即將開放...</p>
