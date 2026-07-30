@@ -7,41 +7,27 @@
     <!-- 引入題庫資料 -->
     <script src="data_lesson1.js"></script>
     
-    <!-- 引入 Tailwind CSS 與 FontAwesome -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* 基礎樣式設定 - 標楷體 */
         body {
             font-family: 'BiaoKai', 'DFKai-SB', '楷體-繁', 'Kaiti TC', serif;
             background-color: #fdf4ff; 
             background-image: radial-gradient(#fbcfe8 3px, transparent 3px);
             background-size: 40px 40px;
             user-select: none; 
-            overflow-x: hidden; 
+            overflow: hidden; 
         }
 
-        /* 動畫效果 */
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
-        }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
         .animate-float { animation: float 2.5s ease-in-out infinite; }
         
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-8px); }
-            40%, 80% { transform: translateX(8px); }
-        }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
         .animate-shake { animation: shake 0.4s ease-in-out; }
 
-        @keyframes popIn {
-            0% { transform: scale(0.7); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
+        @keyframes popIn { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
         .animate-popIn { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
 
-        /* 拖曳進田字格後的樣式 (透明、無縫對位版) */
         .draggable-piece.in-target {
             position: absolute !important;
             background: transparent !important;
@@ -52,7 +38,6 @@
             z-index: 20 !important;
         }
 
-        /* ★ 新增：正在拖曳時的統一樣式 (強迫透明，拔起瞬間就能方便對準) */
         .draggable-piece.is-dragging {
             background: transparent !important;
             border-color: transparent !important;
@@ -69,86 +54,101 @@
         }
     </style>
 </head>
-<body class="min-h-screen text-gray-800 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
+<body class="h-screen w-screen text-gray-800 flex flex-col items-center justify-center p-2 lg:p-6">
 
-    <div class="w-full max-w-[1600px] flex-grow bg-white/95 backdrop-blur-sm p-6 sm:p-8 lg:p-12 rounded-[2rem] lg:rounded-[3rem] shadow-2xl relative border-4 lg:border-8 border-fuchsia-200 flex flex-col">
+    <div class="w-full h-full max-w-[1800px] max-h-[1200px] bg-white/95 backdrop-blur-sm p-4 sm:p-6 lg:p-10 rounded-[2rem] lg:rounded-[3rem] shadow-2xl relative border-4 lg:border-8 border-fuchsia-200 flex flex-col">
         
-        <!-- 返回大廳按鈕 -->
-        <a href="index.html" class="absolute top-5 left-5 lg:top-8 lg:left-8 text-gray-400 hover:text-fuchsia-600 transition-colors text-xl lg:text-2xl font-bold flex items-center gap-2 no-underline z-10">
-            <i class="fa-solid fa-arrow-left"></i> 回大廳
+        <a href="index.html" class="absolute top-4 left-4 lg:top-6 lg:left-6 text-gray-400 hover:text-fuchsia-600 transition-colors text-xl lg:text-2xl font-bold flex items-center gap-2 no-underline z-20">
+            <i class="fa-solid fa-arrow-left font-sans"></i> 回大廳
         </a>
 
-        <!-- 關卡標題 -->
-        <div class="text-center mb-6 lg:mb-10 mt-10 lg:mt-4">
-            <h1 class="text-3xl sm:text-4xl lg:text-6xl font-black text-fuchsia-600 drop-shadow-sm flex items-center justify-center gap-4">
-                <i class="fa-solid fa-puzzle-piece text-fuchsia-400"></i>
-                部件組合大挑戰
+        <!-- 畫面一：選擇課次區 -->
+        <div id="lessonSelectionScreen" class="flex-grow flex flex-col items-center justify-center w-full z-10">
+            <h1 class="text-5xl lg:text-7xl font-black text-fuchsia-500 mb-8 drop-shadow-sm flex items-center gap-4 tracking-widest">
+                <i class="fa-solid fa-puzzle-piece text-fuchsia-300 font-sans"></i>
+                請選擇課次
             </h1>
-            <p class="text-gray-500 font-bold mt-3 text-lg lg:text-2xl">請將下方的部件，組合出正確的國字！</p>
             
-            <div class="w-full max-w-3xl mx-auto bg-gray-200 rounded-full h-3 lg:h-5 mt-5 lg:mt-8 overflow-hidden shadow-inner">
-                <div id="progressBar" class="bg-gradient-to-r from-fuchsia-400 to-pink-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+            <!-- 1~12課的網格按鈕 -->
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6 w-full max-w-5xl px-4">
+                <div id="lessonGrid" class="contents"></div>
             </div>
-            <p id="progressText" class="text-base lg:text-xl text-gray-400 font-bold mt-2 text-center font-sans">0 / 0</p>
         </div>
 
-        <div id="gameArea" class="flex-grow flex flex-col items-center w-full relative">
+        <!-- 畫面二：遊戲作答區 (預設隱藏) -->
+        <div id="gameScreen" class="hidden flex-grow flex-col items-center w-full relative z-10">
             
-            <!-- 階段一：部件組合 -->
-            <div id="assemblyStage" class="w-full flex flex-col lg:flex-row items-center lg:items-stretch justify-center gap-6 lg:gap-12 animate-popIn px-4">
+            <button onclick="backToSelection()" class="absolute top-0 right-2 lg:top-2 lg:right-2 bg-fuchsia-100 text-fuchsia-600 hover:bg-fuchsia-200 px-4 py-2 rounded-full font-bold text-lg lg:text-xl transition-colors z-30">
+                <i class="fa-solid fa-rotate-left font-sans mr-1"></i> 重選課次
+            </button>
+
+            <!-- 標題與進度條 -->
+            <div class="text-center w-full mb-4 lg:mb-6 mt-12 lg:mt-6">
+                <h2 id="currentLessonTitle" class="text-2xl lg:text-4xl font-bold text-fuchsia-400 mb-4 tracking-widest">第一課</h2>
+                <div class="w-full max-w-3xl mx-auto bg-gray-200 rounded-full h-3 lg:h-5 overflow-hidden shadow-inner">
+                    <div id="progressBar" class="bg-gradient-to-r from-fuchsia-400 to-pink-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+                <p id="progressText" class="text-base lg:text-xl text-gray-400 font-bold mt-2 text-center font-sans">0 / 0</p>
+            </div>
+
+            <div id="gameArea" class="flex-grow flex flex-col items-center justify-center w-full relative">
                 
-                <!-- 左側：目標區 -->
-                <div class="flex flex-col items-center w-full lg:w-1/2 max-w-xl border-[6px] border-red-400 bg-red-50/40 rounded-[2rem] p-6 lg:p-8 shadow-sm">
-                    <p class="text-red-500 font-black mb-4 lg:mb-8 text-2xl lg:text-4xl drop-shadow-sm flex items-center gap-3">
-                        <i class="fa-solid fa-arrow-down"></i> 拖曳至此組合
-                    </p>
+                <!-- 階段一：部件組合 -->
+                <div id="assemblyStage" class="w-full flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-12 animate-popIn px-4">
                     
-                    <div id="targetBox" class="relative bg-white w-[260px] h-[260px] sm:w-[360px] sm:h-[360px] lg:w-[480px] lg:h-[480px] rounded-2xl shadow-inner border-4 border-gray-400 transition-colors overflow-hidden">
-                        <!-- 十字線裝飾 -->
-                        <div class="absolute inset-0 pointer-events-none flex flex-col justify-center items-center z-0">
-                            <div class="w-full h-[2px] bg-gray-300 border-dashed"></div>
+                    <!-- 左側：目標區 -->
+                    <div class="flex flex-col items-center w-full lg:w-1/2 max-w-xl border-[6px] border-red-400 bg-red-50/40 rounded-[2rem] p-6 lg:p-8 shadow-sm">
+                        <p class="text-red-500 font-black mb-4 lg:mb-8 text-2xl lg:text-4xl drop-shadow-sm flex items-center gap-3 tracking-widest">
+                            <i class="fa-solid fa-arrow-down font-sans"></i> 拖曳至此組合
+                        </p>
+                        
+                        <div id="targetBox" class="relative bg-white w-[260px] h-[260px] sm:w-[360px] sm:h-[360px] lg:w-[480px] lg:h-[480px] rounded-2xl shadow-inner border-4 border-gray-400 transition-colors overflow-hidden">
+                            <!-- 十字線裝飾 -->
+                            <div class="absolute inset-0 pointer-events-none flex flex-col justify-center items-center z-0">
+                                <div class="w-full h-[2px] bg-gray-300 border-dashed"></div>
+                            </div>
+                            <div class="absolute inset-0 pointer-events-none flex flex-row justify-center items-center z-0">
+                                <div class="h-full w-[2px] bg-gray-300 border-dashed"></div>
+                            </div>
                         </div>
-                        <div class="absolute inset-0 pointer-events-none flex flex-row justify-center items-center z-0">
-                            <div class="h-full w-[2px] bg-gray-300 border-dashed"></div>
+                    </div>
+                    
+                    <!-- 右側：選項區 -->
+                    <div class="flex flex-col items-center w-full lg:w-1/2 max-w-2xl border-[6px] border-blue-400 bg-blue-50/40 rounded-[2rem] p-6 lg:p-8 shadow-sm relative">
+                        <p class="text-blue-500 font-black mb-4 lg:mb-8 text-2xl lg:text-4xl drop-shadow-sm flex items-center gap-3 tracking-widest">
+                            <i class="fa-solid fa-hand-pointer animate-bounce font-sans"></i> 待選部件區
+                        </p>
+                        
+                        <div id="optionsBox" class="flex flex-wrap justify-center gap-4 lg:gap-6 w-full min-h-[260px] content-start relative z-10">
+                            <!-- 選項由 JS 生成 -->
                         </div>
                     </div>
                 </div>
-                
-                <!-- 右側：選項區 -->
-                <div class="flex flex-col items-center w-full lg:w-1/2 max-w-2xl border-[6px] border-blue-400 bg-blue-50/40 rounded-[2rem] p-6 lg:p-8 shadow-sm relative">
-                    <p class="text-blue-500 font-black mb-4 lg:mb-8 text-2xl lg:text-4xl drop-shadow-sm flex items-center gap-3">
-                        <i class="fa-solid fa-hand-pointer animate-bounce"></i> 待選部件區
-                    </p>
+
+                <!-- 組裝完成按鈕區 -->
+                <div id="actionArea" class="w-full flex justify-center mt-6 h-[60px]">
+                    <button id="finishBtn" onclick="finishAssembly()" class="hidden bg-green-500 hover:bg-green-600 text-white text-2xl lg:text-4xl font-bold py-3 px-12 rounded-full shadow-lg transition-transform hover:scale-105 active:scale-95 tracking-widest z-30 relative">
+                        <i class="fa-solid fa-check mr-2 font-sans"></i> 我拼好了
+                    </button>
+                </div>
+
+                <!-- 階段二：選擇部首 -->
+                <div id="radicalStage" class="w-full flex flex-col items-center hidden absolute inset-0 bg-white/95 z-20 justify-center pb-10">
+                    <div class="text-[7rem] sm:text-[10rem] lg:text-[15rem] font-black text-gray-800 mb-4 lg:mb-8 drop-shadow-xl border-b-8 border-pink-200 pb-2 leading-none" id="completedWordDisplay">
+                        字
+                    </div>
                     
-                    <div id="optionsBox" class="flex flex-wrap justify-center gap-4 lg:gap-6 w-full min-h-[260px] content-start relative z-10">
-                        <!-- 選項由 JS 生成 -->
+                    <h2 class="text-2xl sm:text-4xl lg:text-5xl font-black text-pink-600 mb-8 flex items-center gap-3 tracking-widest">
+                        <i class="fa-solid fa-magnifying-glass font-sans"></i>
+                        請問這個字的「部首」是什麼？
+                    </h2>
+                    
+                    <div id="radicalOptionsBox" class="flex flex-wrap justify-center gap-4 lg:gap-8 w-full max-w-4xl">
+                        <!-- 部首選項由 JS 生成 -->
                     </div>
                 </div>
-            </div>
 
-            <!-- 組裝完成按鈕區 -->
-            <div id="actionArea" class="w-full flex justify-center mt-8 h-[60px]">
-                <button id="finishBtn" onclick="finishAssembly()" class="hidden bg-green-500 hover:bg-green-600 text-white text-2xl lg:text-4xl font-bold py-3 px-12 rounded-full shadow-lg transition-transform hover:scale-105 active:scale-95 tracking-widest">
-                    <i class="fa-solid fa-check mr-2 font-sans"></i> 我拼好了
-                </button>
             </div>
-
-            <!-- 階段二：選擇部首 -->
-            <div id="radicalStage" class="w-full flex flex-col items-center hidden absolute top-0 w-full h-full bg-white/95">
-                <div class="text-[7rem] sm:text-[10rem] lg:text-[15rem] font-black text-gray-800 mb-6 lg:mb-10 drop-shadow-xl border-b-8 border-pink-200 pb-2 leading-none mt-10" id="completedWordDisplay">
-                    字
-                </div>
-                
-                <h2 class="text-2xl sm:text-4xl lg:text-5xl font-black text-pink-600 mb-8 flex items-center gap-3">
-                    <i class="fa-solid fa-magnifying-glass font-sans"></i>
-                    請問這個字的「部首」是什麼？
-                </h2>
-                
-                <div id="radicalOptionsBox" class="flex flex-wrap justify-center gap-4 lg:gap-8 w-full max-w-4xl">
-                    <!-- 部首選項由 JS 生成 -->
-                </div>
-            </div>
-
         </div>
     </div>
 
@@ -162,42 +162,97 @@
 
     <!-- 恭喜過關彈窗 -->
     <div id="completionModal" class="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-[3rem] lg:rounded-[4rem] p-10 lg:p-20 flex flex-col items-center shadow-2xl animate-popIn border-[10px] border-pink-400 max-w-2xl text-center">
+        <div class="bg-white rounded-[3rem] lg:rounded-[4rem] p-10 lg:p-20 flex flex-col items-center shadow-2xl animate-popIn border-[10px] border-fuchsia-400 max-w-2xl text-center">
             <i class="fa-solid fa-trophy text-[8rem] lg:text-[12rem] text-yellow-400 mb-6 animate-float font-sans"></i>
-            <h2 class="text-5xl lg:text-7xl font-black text-pink-600 mb-4 drop-shadow-sm tracking-widest">恭喜過關！</h2>
-            <p class="text-2xl lg:text-3xl font-bold text-gray-600 mb-10">你已經完成此關卡！</p>
-            <button onclick="window.location.href='index.html'" class="bg-gradient-to-r from-pink-500 to-rose-500 text-white text-3xl lg:text-4xl font-black py-4 px-12 rounded-full shadow-xl hover:shadow-2xl hover:scale-105 transition-all tracking-widest">
-                回到大廳
-            </button>
+            <h2 class="text-5xl lg:text-7xl font-black text-fuchsia-600 mb-4 drop-shadow-sm tracking-widest">恭喜過關！</h2>
+            <p class="text-2xl lg:text-3xl font-bold text-gray-600 mb-10">你已完成本課所有生字！</p>
+            <div class="flex gap-4 justify-center">
+                <button onclick="backToSelection()" class="bg-fuchsia-100 text-fuchsia-600 border-4 border-fuchsia-300 text-2xl lg:text-3xl font-black py-4 px-8 rounded-full shadow-lg hover:scale-105 transition-all tracking-widest">
+                    選其他課
+                </button>
+                <button onclick="window.location.href='index.html'" class="bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white text-2xl lg:text-3xl font-black py-4 px-8 rounded-full shadow-lg hover:scale-105 transition-all tracking-widest">
+                    回大廳
+                </button>
+            </div>
         </div>
     </div>
 
     <script>
-        // 確認 data_lesson1.js 是否成功載入
         if (typeof lessonData === 'undefined') {
-            alert("題庫載入失敗！請確認 'data_lesson1.js' 檔案是否存在且與此 HTML 檔案放在同一資料夾內。");
+            alert("題庫載入失敗！請確認 'data_lesson1.js' 檔案是否存在。");
         }
 
+        let currentLessonKey = "";
+        let currentQuestions = [];
         let currentWordIndex = 0;
 
         window.onload = () => {
             if (typeof lessonData !== 'undefined') {
-                initGame();
+                renderLessonSelection();
             }
         };
 
-        function initGame() {
+        // 產生 1~12 課的按鈕
+        function renderLessonSelection() {
+            const lessonGrid = document.getElementById('lessonGrid');
+            lessonGrid.innerHTML = '';
+            
+            for (let i = 1; i <= 12; i++) {
+                const lessonKey = `lesson${i}`;
+                const hasQuestions = lessonData[lessonKey] && lessonData[lessonKey].length > 0;
+                
+                const btn = document.createElement('button');
+                
+                if (hasQuestions) {
+                    btn.className = "bg-white border-4 border-fuchsia-300 text-fuchsia-600 text-3xl lg:text-4xl font-bold py-6 lg:py-10 rounded-2xl lg:rounded-[2rem] shadow-md hover:bg-fuchsia-50 hover:shadow-xl transition-transform hover:-translate-y-1 tracking-widest";
+                    btn.innerText = `第 ${i} 課`;
+                    btn.onclick = () => startLesson(lessonKey, i);
+                } else {
+                    btn.className = "bg-gray-100 border-4 border-gray-200 text-gray-400 text-3xl lg:text-4xl font-bold py-6 lg:py-10 rounded-2xl lg:rounded-[2rem] shadow-sm cursor-not-allowed tracking-widest relative overflow-hidden";
+                    btn.innerHTML = `第 ${i} 課 <span class="absolute text-sm bg-gray-300 text-white px-2 py-1 rounded-full bottom-2 right-2 font-sans">無題目</span>`;
+                }
+                
+                lessonGrid.appendChild(btn);
+            }
+        }
+
+        function startLesson(lessonKey, lessonNumber) {
+            currentLessonKey = lessonKey;
+            currentQuestions = [...lessonData[lessonKey]];
             currentWordIndex = 0;
+
+            document.getElementById('currentLessonTitle').innerText = `第 ${lessonNumber} 課`;
+            
+            document.getElementById('lessonSelectionScreen').classList.add('hidden');
+            document.getElementById('lessonSelectionScreen').classList.remove('flex');
+            
+            const gameScreen = document.getElementById('gameScreen');
+            gameScreen.classList.remove('hidden');
+            gameScreen.classList.add('flex', 'animate-popIn');
+            
+            document.getElementById('completionModal').classList.add('hidden');
+
             updateProgress();
             loadWord();
+        }
+
+        function backToSelection() {
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('flex');
+            
+            const selectionScreen = document.getElementById('lessonSelectionScreen');
+            selectionScreen.classList.remove('hidden');
+            selectionScreen.classList.add('flex', 'animate-popIn');
+            
+            document.getElementById('completionModal').classList.add('hidden');
         }
 
         function updateProgress() {
             const progressBar = document.getElementById('progressBar');
             const progressText = document.getElementById('progressText');
-            const percentage = (currentWordIndex / lessonData.length) * 100;
+            const percentage = (currentWordIndex / currentQuestions.length) * 100;
             progressBar.style.width = percentage + '%';
-            progressText.innerText = (currentWordIndex + 1) + ' / ' + lessonData.length;
+            progressText.innerText = (currentWordIndex + 1) + ' / ' + currentQuestions.length;
         }
 
         const renderPieceContent = (content) => {
@@ -211,7 +266,9 @@
 
         function loadWord() {
             document.getElementById('assemblyStage').classList.remove('hidden');
+            document.getElementById('assemblyStage').classList.add('flex');
             document.getElementById('radicalStage').classList.add('hidden');
+            document.getElementById('radicalStage').classList.remove('flex');
             document.getElementById('finishBtn').classList.add('hidden');
             
             document.getElementById('targetBox').innerHTML = `
@@ -223,7 +280,7 @@
                 </div>
             `; 
             
-            const currentData = lessonData[currentWordIndex];
+            const currentData = currentQuestions[currentWordIndex];
             let currentOptions = [...currentData.components];
             currentOptions.sort(() => Math.random() - 0.5);
 
@@ -235,7 +292,6 @@
                 const isImage = comp.toLowerCase().endsWith('.png') || comp.toLowerCase().endsWith('.jpg');
                 const paddingClass = isImage ? 'p-1 lg:p-3' : 'p-3 lg:p-6';
 
-                // 尺寸大幅放大：手機160px，平板192px，電腦224px
                 pieceDiv.className = `draggable-piece touch-none w-40 h-40 sm:w-48 sm:h-48 lg:w-56 lg:h-56 bg-white border-4 border-gray-200 rounded-2xl lg:rounded-3xl shadow-md hover:shadow-xl hover:border-blue-400 cursor-grab active:cursor-grabbing flex items-center justify-center text-4xl lg:text-7xl font-bold text-gray-700 z-10 ${paddingClass} relative`;
                 
                 pieceDiv.innerHTML = renderPieceContent(comp);
@@ -256,18 +312,14 @@
             e.preventDefault(); 
             
             draggedPiece = e.currentTarget;
-            
-            // ★ 修復核心：抓起物件時，馬上加上「正在拖曳」的透明樣式
             draggedPiece.classList.add('is-dragging');
             
-            // 讀取套用透明樣式後的精確位置，才不會跳格
             const rect = draggedPiece.getBoundingClientRect();
             shiftX = e.clientX - rect.left;
             shiftY = e.clientY - rect.top;
             
             placeholder = document.createElement('div');
             placeholder.className = draggedPiece.className;
-            // 讓原地留下的佔位符號保持白底外觀
             placeholder.classList.remove('is-dragging', 'in-target');
             placeholder.style.visibility = 'hidden';
             draggedPiece.parentNode.insertBefore(placeholder, draggedPiece);
@@ -299,9 +351,7 @@
             const elemBelow = document.elementFromPoint(e.clientX, e.clientY);
             draggedPiece.style.display = '';
             
-            // ★ 放開時移除「正在拖曳」的樣式
             draggedPiece.classList.remove('is-dragging');
-
             draggedPiece.style.position = '';
             draggedPiece.style.left = '';
             draggedPiece.style.top = '';
@@ -342,7 +392,7 @@
         document.addEventListener('pointercancel', onPointerUp);
 
         function checkAssemblyState() {
-            const currentData = lessonData[currentWordIndex];
+            const currentData = currentQuestions[currentWordIndex];
             const targetBox = document.getElementById('targetBox');
             const finishBtn = document.getElementById('finishBtn');
             
@@ -373,13 +423,14 @@
 
         function showRadicalSelection() {
             document.getElementById('assemblyStage').classList.add('hidden');
+            document.getElementById('assemblyStage').classList.remove('flex');
             document.getElementById('finishBtn').classList.add('hidden');
             
             const radicalStage = document.getElementById('radicalStage');
             radicalStage.classList.remove('hidden');
-            radicalStage.classList.add('animate-popIn');
+            radicalStage.classList.add('flex', 'animate-popIn');
             
-            const currentData = lessonData[currentWordIndex];
+            const currentData = currentQuestions[currentWordIndex];
             document.getElementById('completedWordDisplay').innerText = currentData.char;
             
             const radicalOptionsBox = document.getElementById('radicalOptionsBox');
@@ -399,7 +450,7 @@
         }
 
         function selectRadical(choice) {
-            const currentData = lessonData[currentWordIndex];
+            const currentData = currentQuestions[currentWordIndex];
             if (choice === currentData.radical) {
                 showFeedback(true, "正確");
                 setTimeout(nextWord, 800);
@@ -410,7 +461,7 @@
 
         function nextWord() {
             currentWordIndex++;
-            if (currentWordIndex >= lessonData.length) {
+            if (currentWordIndex >= currentQuestions.length) {
                 document.getElementById('completionModal').classList.remove('hidden');
             } else {
                 updateProgress();
