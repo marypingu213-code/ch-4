@@ -15,9 +15,10 @@
         body {
             font-family: 'BiaoKai', 'DFKai-SB', '楷體-繁', 'Kaiti TC', 'Noto Sans TC', sans-serif;
             background-color: #f0fdf4;
-            background-image: radial-gradient(#bbf7d0 2px, transparent 2px);
-            background-size: 30px 30px;
+            background-image: radial-gradient(#bbf7d0 3px, transparent 3px);
+            background-size: 50px 50px;
             user-select: none;
+            overflow: hidden; /* 強制鎖死畫面，絕對不允許捲動 */
         }
 
         /* 動畫效果 */
@@ -30,7 +31,7 @@
 
         @keyframes float {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+            50% { transform: translateY(-12px); }
         }
         .animate-float { animation: float 3s ease-in-out infinite; }
         
@@ -41,58 +42,63 @@
         .animate-bounce-slow { animation: bounce-slow 2s infinite; }
     </style>
 </head>
-<body class="min-h-screen text-gray-800 flex flex-col items-center justify-center p-4 md:p-8">
+<body class="h-screen w-screen text-gray-800 flex flex-col items-center justify-center p-4 lg:p-8">
 
-    <div class="w-full max-w-4xl bg-white/90 backdrop-blur-sm p-8 md:p-12 rounded-[2.5rem] shadow-2xl flex flex-col items-center">
-        <!-- 大廳標題 -->
-        <h1 class="text-4xl md:text-6xl font-black text-green-600 mb-4 drop-shadow-md animate-float flex items-center gap-4 text-center">
-            <i class="fa-solid fa-gamepad text-orange-400 font-sans"></i>
-            國語遊戲大廳
-            <i class="fa-solid fa-gamepad text-yellow-400 font-sans"></i>
-        </h1>
-        <p class="text-xl md:text-2xl text-gray-600 mb-10 font-bold border-b-4 border-green-200 pb-2 font-sans">請選擇要挑戰的關卡！</p>
+    <!-- 外層容器：改為幾乎填滿整個螢幕 (h-full w-full) -->
+    <div class="w-full h-full max-w-[1800px] max-h-[1200px] bg-white/90 backdrop-blur-sm p-6 sm:p-10 lg:p-14 rounded-[3rem] lg:rounded-[4rem] shadow-2xl flex flex-col items-center justify-between gap-6 lg:gap-10">
         
-        <!-- 關卡選單網格 -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-3xl">
+        <!-- 大廳標題區 -->
+        <div class="flex flex-col items-center justify-center pt-2 lg:pt-6">
+            <h1 class="text-5xl md:text-7xl lg:text-[5.5rem] font-black text-green-600 mb-6 drop-shadow-md animate-float flex items-center gap-6 text-center tracking-widest">
+                <i class="fa-solid fa-gamepad text-orange-400 font-sans"></i>
+                國語遊戲大廳
+                <i class="fa-solid fa-gamepad text-yellow-400 font-sans"></i>
+            </h1>
+            <p class="text-2xl md:text-4xl lg:text-5xl text-gray-600 font-bold border-b-8 border-green-200 pb-4 font-sans tracking-wide">請選擇要挑戰的關卡！</p>
+        </div>
+        
+        <!-- 關卡選單網格：flex-grow 讓它向下撐滿所有剩餘空間 -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-10 w-full flex-grow pb-4 lg:pb-8">
             
             <!-- 第一關：部件組合 -->
-            <a href="lesson1.html" class="block group relative bg-gradient-to-br from-green-400 to-emerald-600 rounded-3xl p-8 text-white shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 border-4 border-white cursor-pointer no-underline">
-                <div class="absolute -top-4 -right-4 bg-yellow-400 text-yellow-900 font-bold px-4 py-1 rounded-full shadow-md animate-bounce-slow z-10 font-sans">Start!</div>
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-3xl font-black group-hover:animate-shake">第一關</h2>
-                    <i class="fa-solid fa-puzzle-piece text-4xl text-green-200 opacity-80 font-sans"></i>
+            <!-- h-full 讓按鈕垂直撐滿網格空間，變成超大觸控磚塊 -->
+            <a href="lesson1.html" class="group relative flex flex-col justify-center h-full bg-gradient-to-br from-green-400 to-emerald-600 rounded-[2.5rem] lg:rounded-[3.5rem] p-8 lg:p-12 text-white shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-transform duration-300 border-8 border-white cursor-pointer no-underline">
+                <div class="absolute -top-5 -right-5 lg:-top-6 lg:-right-6 bg-yellow-400 text-yellow-900 font-bold px-6 py-2 lg:px-8 lg:py-3 rounded-full shadow-lg animate-bounce-slow z-10 text-xl lg:text-3xl font-sans border-4 border-white">Start!</div>
+                <div class="flex items-center justify-between mb-4 lg:mb-8">
+                    <h2 class="text-4xl lg:text-6xl font-black group-hover:animate-shake tracking-widest">第一關</h2>
+                    <i class="fa-solid fa-puzzle-piece text-5xl lg:text-7xl text-green-200 opacity-80 font-sans"></i>
                 </div>
-                <p class="text-green-100 text-lg font-bold">組合部件與找部首</p>
+                <p class="text-green-100 text-2xl lg:text-4xl font-bold tracking-wide">組合部件與找部首</p>
             </a>
 
             <!-- 第二關：句子重組 -->
-            <a href="lesson2.html" class="block group relative bg-gradient-to-br from-blue-400 to-indigo-600 rounded-3xl p-8 text-white shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 border-4 border-white cursor-pointer no-underline">
-                <div class="absolute -top-4 -right-4 bg-yellow-400 text-yellow-900 font-bold px-4 py-1 rounded-full shadow-md animate-bounce-slow z-10 font-sans">Start!</div>
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-3xl font-black group-hover:animate-shake">第二關</h2>
-                    <i class="fa-solid fa-list-ol text-4xl text-blue-200 opacity-80 font-sans"></i>
+            <a href="lesson2.html" class="group relative flex flex-col justify-center h-full bg-gradient-to-br from-blue-400 to-indigo-600 rounded-[2.5rem] lg:rounded-[3.5rem] p-8 lg:p-12 text-white shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-transform duration-300 border-8 border-white cursor-pointer no-underline">
+                <div class="absolute -top-5 -right-5 lg:-top-6 lg:-right-6 bg-yellow-400 text-yellow-900 font-bold px-6 py-2 lg:px-8 lg:py-3 rounded-full shadow-lg animate-bounce-slow z-10 text-xl lg:text-3xl font-sans border-4 border-white">Start!</div>
+                <div class="flex items-center justify-between mb-4 lg:mb-8">
+                    <h2 class="text-4xl lg:text-6xl font-black group-hover:animate-shake tracking-widest">第二關</h2>
+                    <i class="fa-solid fa-list-ol text-5xl lg:text-7xl text-blue-200 opacity-80 font-sans"></i>
                 </div>
-                <p class="text-blue-100 text-lg font-bold">句子重組大挑戰</p>
+                <p class="text-blue-100 text-2xl lg:text-4xl font-bold tracking-wide">句子重組大挑戰</p>
             </a>
 
             <!-- 第三關：改錯字 -->
-            <a href="lesson3.html" class="block group relative bg-gradient-to-br from-purple-400 to-fuchsia-600 rounded-3xl p-8 text-white shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 border-4 border-white cursor-pointer no-underline">
-                <div class="absolute -top-4 -right-4 bg-yellow-400 text-yellow-900 font-bold px-4 py-1 rounded-full shadow-md animate-bounce-slow z-10 font-sans">Start!</div>
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-3xl font-black group-hover:animate-shake">第三關</h2>
-                    <i class="fa-solid fa-eraser text-4xl text-purple-200 opacity-80 font-sans"></i>
+            <a href="lesson3.html" class="group relative flex flex-col justify-center h-full bg-gradient-to-br from-purple-400 to-fuchsia-600 rounded-[2.5rem] lg:rounded-[3.5rem] p-8 lg:p-12 text-white shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-transform duration-300 border-8 border-white cursor-pointer no-underline">
+                <div class="absolute -top-5 -right-5 lg:-top-6 lg:-right-6 bg-yellow-400 text-yellow-900 font-bold px-6 py-2 lg:px-8 lg:py-3 rounded-full shadow-lg animate-bounce-slow z-10 text-xl lg:text-3xl font-sans border-4 border-white">Start!</div>
+                <div class="flex items-center justify-between mb-4 lg:mb-8">
+                    <h2 class="text-4xl lg:text-6xl font-black group-hover:animate-shake tracking-widest">第三關</h2>
+                    <i class="fa-solid fa-eraser text-5xl lg:text-7xl text-purple-200 opacity-80 font-sans"></i>
                 </div>
-                <p class="text-purple-100 text-lg font-bold">火眼金睛改錯字</p>
+                <p class="text-purple-100 text-2xl lg:text-4xl font-bold tracking-wide">火眼金睛改錯字</p>
             </a>
 
             <!-- 第四關：選擇題 -->
-            <a href="lesson4.html" class="block group relative bg-gradient-to-br from-orange-400 to-rose-500 rounded-3xl p-8 text-white shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 border-4 border-white cursor-pointer no-underline">
-                <div class="absolute -top-4 -right-4 bg-yellow-400 text-yellow-900 font-bold px-4 py-1 rounded-full shadow-md animate-bounce-slow z-10 font-sans">Start!</div>
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-3xl font-black group-hover:animate-shake">第四關</h2>
-                    <i class="fa-solid fa-list-check text-4xl text-orange-200 opacity-80 font-sans"></i>
+            <a href="lesson4.html" class="group relative flex flex-col justify-center h-full bg-gradient-to-br from-orange-400 to-rose-500 rounded-[2.5rem] lg:rounded-[3.5rem] p-8 lg:p-12 text-white shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-transform duration-300 border-8 border-white cursor-pointer no-underline">
+                <div class="absolute -top-5 -right-5 lg:-top-6 lg:-right-6 bg-yellow-400 text-yellow-900 font-bold px-6 py-2 lg:px-8 lg:py-3 rounded-full shadow-lg animate-bounce-slow z-10 text-xl lg:text-3xl font-sans border-4 border-white">Start!</div>
+                <div class="flex items-center justify-between mb-4 lg:mb-8">
+                    <h2 class="text-4xl lg:text-6xl font-black group-hover:animate-shake tracking-widest">第四關</h2>
+                    <i class="fa-solid fa-list-check text-5xl lg:text-7xl text-orange-200 opacity-80 font-sans"></i>
                 </div>
-                <p class="text-orange-100 text-lg font-bold">語文綜合選擇題</p>
+                <p class="text-orange-100 text-2xl lg:text-4xl font-bold tracking-wide">語文綜合選擇題</p>
             </a>
 
         </div>
