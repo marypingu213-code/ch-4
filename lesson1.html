@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>第一關：部件組合</title>
-    <!-- 引入 Tailwind CSS -->
+    <!-- 引入題庫資料 (重要！) -->
+    <script src="data_lesson1.js"></script>
+    
+    <!-- 引入 Tailwind CSS 與 FontAwesome -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* 基礎樣式設定 */
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
-        
+        /* 基礎樣式設定 - 全面改用標楷體 (BiaoKai/DFKai-SB) */
         body {
-            /* ★ 將字體優先順序改為標楷體 (BiauKai/KaiTi) */
-            font-family: 'BiauKai', '標楷體', 'KaiTi', '楷體', 'Noto Sans TC', sans-serif;
+            font-family: 'BiaoKai', 'DFKai-SB', '楷體-繁', 'Kaiti TC', serif;
             background-color: #fdf4ff; 
             background-image: radial-gradient(#fbcfe8 3px, transparent 3px);
             background-size: 40px 40px;
@@ -41,37 +41,22 @@
         }
         .animate-popIn { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
 
-        /* 
-           ★ 關鍵樣式：拖曳狀態 (Dragging) 
-           當物件被抓起時，讓它背景透明，方便對準 
-        */
-        .draggable-piece.is-dragging {
+        /* 拖曳進田字格後的樣式 (透明、無縫對位版) */
+        .draggable-piece.in-target {
+            position: absolute !important;
             background: transparent !important;
             border-color: transparent !important;
             box-shadow: none !important;
-            opacity: 0.9;
-        }
-
-        /* 
-           ★ 關鍵樣式：放入田字格後的狀態 (In Target) 
-           放入後必須是 absolute 才能自由擺放，並隱藏原本白底
-        */
-        .draggable-piece.in-target {
-            position: absolute !important;
-            background: transparent !important; 
-            border-color: transparent !important; 
-            box-shadow: none !important; 
-            padding: 0 !important; 
+            padding: 0 !important;
             margin: 0 !important;
-            z-index: 20 !important; 
+            z-index: 20 !important;
         }
 
-        /* 確保裡面的圖片保持原始比例 */
         .draggable-piece.in-target img {
             width: 100% !important;
             height: 100% !important;
             object-fit: contain !important; 
-            pointer-events: none !important; 
+            pointer-events: none !important;
         }
     </style>
 </head>
@@ -95,7 +80,7 @@
             <div class="w-full max-w-3xl mx-auto bg-gray-200 rounded-full h-3 lg:h-5 mt-5 lg:mt-8 overflow-hidden shadow-inner">
                 <div id="progressBar" class="bg-gradient-to-r from-fuchsia-400 to-pink-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
             </div>
-            <p id="progressText" class="text-base lg:text-xl text-gray-400 font-bold mt-2 text-center">0 / 0</p>
+            <p id="progressText" class="text-base lg:text-xl text-gray-400 font-bold mt-2 text-center font-sans">0 / 0</p>
         </div>
 
         <div id="gameArea" class="flex-grow flex flex-col items-center w-full relative">
@@ -109,8 +94,7 @@
                         <i class="fa-solid fa-arrow-down"></i> 拖曳至此組合
                     </p>
                     
-                    <!-- 尺寸加大 -->
-                    <div id="targetBox" class="relative bg-white w-[280px] h-[280px] sm:w-[400px] sm:h-[400px] lg:w-[520px] lg:h-[520px] rounded-2xl shadow-inner border-4 border-gray-400 transition-colors overflow-hidden">
+                    <div id="targetBox" class="relative bg-white w-[260px] h-[260px] sm:w-[360px] sm:h-[360px] lg:w-[480px] lg:h-[480px] rounded-2xl shadow-inner border-4 border-gray-400 transition-colors overflow-hidden">
                         <!-- 十字線裝飾 -->
                         <div class="absolute inset-0 pointer-events-none flex flex-col justify-center items-center z-0">
                             <div class="w-full h-[2px] bg-gray-300 border-dashed"></div>
@@ -135,8 +119,8 @@
 
             <!-- 組裝完成按鈕區 -->
             <div id="actionArea" class="w-full flex justify-center mt-8 h-[60px]">
-                <button id="finishBtn" onclick="finishAssembly()" class="hidden bg-green-500 hover:bg-green-600 text-white text-2xl lg:text-4xl font-bold py-3 px-12 rounded-full shadow-lg transition-transform hover:scale-105 active:scale-95">
-                    <i class="fa-solid fa-check mr-2"></i> 我拼好了
+                <button id="finishBtn" onclick="finishAssembly()" class="hidden bg-green-500 hover:bg-green-600 text-white text-2xl lg:text-4xl font-bold py-3 px-12 rounded-full shadow-lg transition-transform hover:scale-105 active:scale-95 tracking-widest">
+                    <i class="fa-solid fa-check mr-2 font-sans"></i> 我拼好了
                 </button>
             </div>
 
@@ -147,7 +131,7 @@
                 </div>
                 
                 <h2 class="text-2xl sm:text-4xl lg:text-5xl font-black text-pink-600 mb-8 flex items-center gap-3">
-                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <i class="fa-solid fa-magnifying-glass font-sans"></i>
                     請問這個字的「部首」是什麼？
                 </h2>
                 
@@ -163,62 +147,34 @@
     <div id="feedbackModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 hidden pointer-events-none">
         <div class="bg-white rounded-[2rem] lg:rounded-[3rem] p-10 lg:p-16 flex flex-col items-center shadow-2xl animate-popIn pointer-events-auto">
             <div id="feedbackIcon" class="text-[6rem] lg:text-[10rem] mb-4"></div>
-            <h2 id="feedbackText" class="text-4xl lg:text-6xl font-black"></h2>
+            <h2 id="feedbackText" class="text-4xl lg:text-6xl font-black tracking-widest"></h2>
         </div>
     </div>
 
     <!-- 恭喜過關彈窗 -->
     <div id="completionModal" class="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 hidden">
         <div class="bg-white rounded-[3rem] lg:rounded-[4rem] p-10 lg:p-20 flex flex-col items-center shadow-2xl animate-popIn border-[10px] border-pink-400 max-w-2xl text-center">
-            <i class="fa-solid fa-trophy text-[8rem] lg:text-[12rem] text-yellow-400 mb-6 animate-float"></i>
-            <h2 class="text-5xl lg:text-7xl font-black text-pink-600 mb-4 drop-shadow-sm">恭喜過關！</h2>
+            <i class="fa-solid fa-trophy text-[8rem] lg:text-[12rem] text-yellow-400 mb-6 animate-float font-sans"></i>
+            <h2 class="text-5xl lg:text-7xl font-black text-pink-600 mb-4 drop-shadow-sm tracking-widest">恭喜過關！</h2>
             <p class="text-2xl lg:text-3xl font-bold text-gray-600 mb-10">你已經完成此關卡！</p>
-            <button onclick="window.location.href='index.html'" class="bg-gradient-to-r from-pink-500 to-rose-500 text-white text-3xl lg:text-4xl font-black py-4 px-12 rounded-full shadow-xl hover:shadow-2xl hover:scale-105 transition-all">
+            <button onclick="window.location.href='index.html'" class="bg-gradient-to-r from-pink-500 to-rose-500 text-white text-3xl lg:text-4xl font-black py-4 px-12 rounded-full shadow-xl hover:shadow-2xl hover:scale-105 transition-all tracking-widest">
                 回到大廳
             </button>
         </div>
     </div>
 
     <script>
-        const lessonData = [
-            // 第一課
-            { char: "串", components: ["lesson1/L1/筆順-串-部件-1.png", "lesson1/L1/筆順-串-部件-2.png", "lesson1/L1/筆順-串-部件-3.png"], radical: "丨", radicalChoices: ["丨", "口", "人", "木"] },
-            { char: "泳", components: ["lesson1/L1/筆順-泳-部件-1.png", "lesson1/L1/筆順-泳-部件-2.png"], radical: "水", radicalChoices: ["水", "木", "人", "日"] },
-            { char: "陀", components: ["lesson1/L1/筆順-陀-部件-1.png", "lesson1/L1/筆順-陀-部件-2.png"], radical: "阜", radicalChoices: ["阜", "宀", "匕", "手"] },
-            { char: "姿", components: ["lesson1/L1/筆順-姿-部件-1.png", "lesson1/L1/筆順-姿-部件-2.png", "lesson1/L1/筆順-姿-部件-3.png"], radical: "女", radicalChoices: ["女", "欠", "次", "人"] },
-            { char: "般", components: ["lesson1/L1/筆順-般-部件-1.png", "lesson1/L1/筆順-般-部件-2.png", "lesson1/L1/筆順-般-部件-3.png"], radical: "舟", radicalChoices: ["舟", "几", "又", "水"] },
-            { char: "溜", components: ["lesson1/L1/筆順-溜-部件-1.png", "lesson1/L1/筆順-溜-部件-2.png", "lesson1/L1/筆順-溜-部件-3.png", "lesson1/L1/筆順-溜-部件-4.png"], radical: "水", radicalChoices: ["水", "刀", "田", "木"] },
-            { char: "滑", components: ["lesson1/L1/筆順-滑-部件-1.png", "lesson1/L1/筆順-滑-部件-2.png", "lesson1/L1/筆順-滑-部件-3.png"], radical: "水", radicalChoices: ["水", "月", "骨", "手"] },
-            { char: "煩", components: ["lesson1/L1/筆順-煩-部件-1.png", "lesson1/L1/筆順-煩-部件-2.png", "lesson1/L1/筆順-煩-部件-3.png"], radical: "火", radicalChoices: ["火", "貝", "一", "頁"] },
-            { char: "緩", components: ["lesson1/L1/筆順-緩-部件-1.png", "lesson1/L1/筆順-緩-部件-2.png", "lesson1/L1/筆順-緩-部件-3.png", "lesson1/L1/筆順-緩-部件-4.png"], radical: "糸", radicalChoices: ["糸", "又", "爪", "厂"] },
-            { char: "遨", components: ["lesson1/L1/筆順-遨-部件-1.png", "lesson1/L1/筆順-遨-部件-2.png", "lesson1/L1/筆順-遨-部件-3.png", "lesson1/L1/筆順-遨-部件-4.png"], radical: "辵", radicalChoices: ["辵", "士", "方", "攵"] },
-            { char: "螺", components: ["lesson1/L1/筆順-螺-部件-1.png", "lesson1/L1/筆順-螺-部件-2.png", "lesson1/L1/筆順-螺-部件-3.png"], radical: "虫", radicalChoices: ["虫", "田", "糸", "木"] },
-            { char: "轉", components: ["lesson1/L1/筆順-轉-部件-1.png", "lesson1/L1/筆順-轉-部件-2.png", "lesson1/L1/筆順-轉-部件-3.png"], radical: "車", radicalChoices: ["車", "寸", "專", "手"] },
-            { char: "躍", components: ["lesson1/L1/筆順-躍-部件-1.png", "lesson1/L1/筆順-躍-部件-2.png", "lesson1/L1/筆順-躍-部件-3.png"], radical: "足", radicalChoices: ["足", "羽", "隹", "鳥"] },
-            { char: "鷹", components: ["lesson1/L1/筆順-鷹-部件-1.png", "lesson1/L1/筆順-鷹-部件-2.png", "lesson1/L1/筆順-鷹-部件-3.png", "lesson1/L1/筆順-鷹-部件-4.png"], radical: "鳥", radicalChoices: ["鳥", "广", "人", "隹"] },
-
-            // 第二課
-            { char: "束", components: ["lesson1/L2/筆順-束-部件-1.png", "lesson1/L2/筆順-束-部件-2.png"], radical: "木", radicalChoices: ["木", "口", "人", "水"] },
-            { char: "依", components: ["lesson1/L2/筆順-依-部件-1.png", "lesson1/L2/筆順-依-部件-2.png"], radical: "人", radicalChoices: ["人", "衣", "木", "手"] },
-            { char: "姐", components: ["lesson1/L2/筆順-姐-部件-1.png", "lesson1/L2/筆順-姐-部件-2.png"], radical: "女", radicalChoices: ["女", "且", "木", "人"] },
-            { char: "幸", components: ["lesson1/L2/筆順-幸-部件-1.png", "lesson1/L2/筆順-幸-部件-2.png", "lesson1/L2/筆順-幸-部件-3.png"], radical: "干", radicalChoices: ["干", "土", "十", "手"] },
-            { char: "拋", components: ["lesson1/L2/筆順-拋-部件-1.png", "lesson1/L2/筆順-拋-部件-2.png", "lesson1/L2/筆順-拋-部件-3.png"], radical: "手", radicalChoices: ["手", "力", "人", "水"] },
-            { char: "招", components: ["lesson1/L2/筆順-招-部件-1.png", "lesson1/L2/筆順-招-部件-2.png", "lesson1/L2/筆順-招-部件-3.png"], radical: "手", radicalChoices: ["手", "刀", "口", "木"] },
-            { char: "爭", components: ["lesson1/L2/筆順-爭-部件-1.png", "lesson1/L2/筆順-爭-部件-2.png"], radical: "爪", radicalChoices: ["爪", "手", "口", "木"] },
-            { char: "則", components: ["lesson1/L2/筆順-則-部件-1.png", "lesson1/L2/筆順-則-部件-2.png"], radical: "刀", radicalChoices: ["刀", "貝", "人", "水"] },
-            { char: "偷", components: ["lesson1/L2/筆順-偷-部件-1.png", "lesson1/L2/筆順-偷-部件-2.png", "lesson1/L2/筆順-偷-部件-3.png", "lesson1/L2/筆順-偷-部件-4.png", "lesson1/L2/筆順-偷-部件-5.png"], radical: "人", radicalChoices: ["人", "刀", "月", "一"] },
-            { char: "捨", components: ["lesson1/L2/筆順-捨-部件-1.png", "lesson1/L2/筆順-捨-部件-2.png", "lesson1/L2/筆順-捨-部件-3.png"], radical: "手", radicalChoices: ["手", "人", "舌", "木"] },
-            { char: "湯", components: ["lesson1/L2/筆順-湯-部件-1.png", "lesson1/L2/筆順-湯-部件-2.png", "lesson1/L2/筆順-湯-部件-3.png", "lesson1/L2/筆順-湯-部件-4.png"], radical: "水", radicalChoices: ["水", "日", "一", "手"] },
-            { char: "暫", components: ["lesson1/L2/筆順-暫-部件-1.png", "lesson1/L2/筆順-暫-部件-2.png", "lesson1/L2/筆順-暫-部件-3.png"], radical: "日", radicalChoices: ["日", "車", "斤", "木"] },
-            { char: "糧", components: ["lesson1/L2/筆順-糧-部件-1.png", "lesson1/L2/筆順-糧-部件-2.png", "lesson1/L2/筆順-糧-部件-3.png", "lesson1/L2/筆順-糧-部件-4.png"], radical: "米", radicalChoices: ["米", "日", "一", "里"] },
-            { char: "繩", components: ["lesson1/L2/筆順-繩-部件-1.png", "lesson1/L2/筆順-繩-部件-2.png", "lesson1/L2/筆順-繩-部件-3.png", "lesson1/L2/筆順-繩-部件-4.png"], radical: "糸", radicalChoices: ["糸", "口", "虫", "水"] },
-            { char: "警", components: ["lesson1/L2/筆順-警-部件-1.png", "lesson1/L2/筆順-警-部件-2.png"], radical: "言", radicalChoices: ["言", "敬", "口", "木"] }
-        ];
+        // 確認 data_lesson1.js 是否成功載入
+        if (typeof lessonData === 'undefined') {
+            alert("題庫載入失敗！請確認 'data_lesson1.js' 檔案是否存在且與此 HTML 檔案放在同一資料夾內。");
+        }
 
         let currentWordIndex = 0;
 
         window.onload = () => {
-            initGame();
+            if (typeof lessonData !== 'undefined') {
+                initGame();
+            }
         };
 
         function initGame() {
@@ -238,7 +194,7 @@
         const renderPieceContent = (content) => {
             const lowerContent = content.toLowerCase();
             if (lowerContent.endsWith('.png') || lowerContent.endsWith('.jpg') || lowerContent.endsWith('.jpeg')) {
-                return `<img src="${content}" alt="部件" class="w-full h-full object-contain pointer-events-none" onerror='this.outerHTML="<div class=\\"text-xs lg:text-sm text-red-500 font-bold break-all p-1 leading-tight flex items-center justify-center text-center w-full h-full\\">找不到圖片:<br>${content}</div>"'>`;
+                return `<img src="${content}" alt="部件" class="w-full h-full object-contain pointer-events-none" onerror='this.outerHTML="<div class=\\"text-xs lg:text-sm text-red-500 font-bold break-all p-1 leading-tight flex items-center justify-center text-center w-full h-full font-sans\\">找不到圖片:<br>${content}</div>"'>`;
             } else {
                 return content;
             }
@@ -247,9 +203,8 @@
         function loadWord() {
             document.getElementById('assemblyStage').classList.remove('hidden');
             document.getElementById('radicalStage').classList.add('hidden');
-            document.getElementById('finishBtn').classList.add('hidden'); 
+            document.getElementById('finishBtn').classList.add('hidden');
             
-            // 重置田字格
             document.getElementById('targetBox').innerHTML = `
                 <div class="absolute inset-0 pointer-events-none flex flex-col justify-center items-center z-0">
                     <div class="w-full h-[2px] bg-gray-300 border-dashed"></div>
@@ -271,7 +226,7 @@
                 const isImage = comp.toLowerCase().endsWith('.png') || comp.toLowerCase().endsWith('.jpg');
                 const paddingClass = isImage ? 'p-1 lg:p-3' : 'p-3 lg:p-6';
 
-                // 尺寸加大：從 w-32/h-32 放大到 w-40/h-40，大螢幕甚至放大到 w-56/h-56
+                // 尺寸大幅放大：手機160px，平板192px，電腦224px
                 pieceDiv.className = `draggable-piece touch-none w-40 h-40 sm:w-48 sm:h-48 lg:w-56 lg:h-56 bg-white border-4 border-gray-200 rounded-2xl lg:rounded-3xl shadow-md hover:shadow-xl hover:border-blue-400 cursor-grab active:cursor-grabbing flex items-center justify-center text-4xl lg:text-7xl font-bold text-gray-700 z-10 ${paddingClass} relative`;
                 
                 pieceDiv.innerHTML = renderPieceContent(comp);
@@ -282,9 +237,6 @@
             });
         }
 
-        // ==========================================
-        // 全域觸控拖曳系統 (自由定位修復版)
-        // ==========================================
         let draggedPiece = null;
         let shiftX = 0;
         let shiftY = 0;
@@ -296,30 +248,24 @@
             
             draggedPiece = e.currentTarget;
             
-            // 記錄滑鼠點擊圖片時的精確相對位置 (維持手感)
             const rect = draggedPiece.getBoundingClientRect();
             shiftX = e.clientX - rect.left;
             shiftY = e.clientY - rect.top;
             
-            // 拔起時恢復外觀 (如果本來在田字格內)
             draggedPiece.classList.remove('in-target');
             
-            // 創建佔位符避免版面跳動
             placeholder = document.createElement('div');
             placeholder.className = draggedPiece.className;
             placeholder.style.visibility = 'hidden';
             draggedPiece.parentNode.insertBefore(placeholder, draggedPiece);
             
-            // 將元素移至 body 層級，確保拖曳不被容器限制
             document.body.appendChild(draggedPiece);
             
-            // 進入拖曳狀態
-            draggedPiece.classList.add('is-dragging');
             draggedPiece.style.position = 'fixed';
             draggedPiece.style.zIndex = '9999';
             draggedPiece.style.margin = '0';
+            draggedPiece.style.pointerEvents = 'none';
             
-            // 立即將元素定位到滑鼠下方
             moveAt(e.clientX, e.clientY);
         }
 
@@ -330,58 +276,43 @@
         }
 
         function moveAt(pageX, pageY) {
-            // 確保拖曳時，圖片始終跟隨滑鼠
-            draggedPiece.style.left = (pageX - shiftX) + 'px';
-            draggedPiece.style.top = (pageY - shiftY) + 'px';
+            draggedPiece.style.left = pageX - shiftX + 'px';
+            draggedPiece.style.top = pageY - shiftY + 'px';
         }
 
         function onPointerUp(e) {
             if (!draggedPiece) return;
             
-            // 清理拖曳專用樣式
-            draggedPiece.classList.remove('is-dragging');
+            draggedPiece.style.display = 'none';
+            const elemBelow = document.elementFromPoint(e.clientX, e.clientY);
+            draggedPiece.style.display = '';
+            
             draggedPiece.style.position = '';
             draggedPiece.style.left = '';
             draggedPiece.style.top = '';
             draggedPiece.style.zIndex = '';
             draggedPiece.style.margin = '';
-            
-            // 尋找滑鼠下方的元素 (先暫時隱藏被拖曳的物件，以免擋住偵測)
-            draggedPiece.style.display = 'none';
-            const elemBelow = document.elementFromPoint(e.clientX, e.clientY);
-            draggedPiece.style.display = '';
+            draggedPiece.style.pointerEvents = 'auto'; 
             
             const targetBox = document.getElementById('targetBox');
             const optionsBox = document.getElementById('optionsBox');
             
-            // 判斷是否落在紅框(目標區)
             if (elemBelow && (elemBelow === targetBox || targetBox.contains(elemBelow))) {
-                
-                // ★ 關鍵修復：將物件加入目標區
                 targetBox.appendChild(draggedPiece);
                 draggedPiece.classList.add('in-target');
                 
-                // 取得目標框的邊界資訊
                 const boxRect = targetBox.getBoundingClientRect();
-                
-                // 計算相對於 targetBox 左上角的精確座標
-                // 公式：滑鼠當前 X 座標 - targetBox 左邊界 X 座標 - 原本點擊圖片內的偏移量
                 let newLeft = e.clientX - boxRect.left - shiftX;
                 let newTop = e.clientY - boxRect.top - shiftY;
                 
-                // 套用絕對位置，確保圖片完美停留在放開滑鼠的那一刻的位置
                 draggedPiece.style.left = newLeft + 'px';
                 draggedPiece.style.top = newTop + 'px';
                 
             } else {
-                // 如果落在外面，退回藍框
                 optionsBox.appendChild(draggedPiece);
                 draggedPiece.classList.remove('in-target');
-                draggedPiece.style.left = '';
-                draggedPiece.style.top = '';
             }
             
-            // 移除佔位符
             if (placeholder && placeholder.parentNode) {
                 placeholder.parentNode.removeChild(placeholder);
             }
@@ -396,9 +327,6 @@
         document.addEventListener('pointerup', onPointerUp);
         document.addEventListener('pointercancel', onPointerUp);
 
-        // ==========================================
-        // 遊戲流程控制
-        // ==========================================
         function checkAssemblyState() {
             const currentData = lessonData[currentWordIndex];
             const targetBox = document.getElementById('targetBox');
@@ -484,13 +412,13 @@
             feedbackModal.classList.remove('hidden');
             
             if (isCorrect) {
-                feedbackIcon.className = "text-[6rem] lg:text-[10rem] mb-4 text-green-500";
+                feedbackIcon.className = "text-[6rem] lg:text-[10rem] mb-4 text-green-500 font-sans";
                 feedbackIcon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
-                feedbackText.className = "text-4xl lg:text-6xl font-black text-green-600";
+                feedbackText.className = "text-4xl lg:text-6xl font-black text-green-600 tracking-widest";
             } else {
-                feedbackIcon.className = "text-[6rem] lg:text-[10rem] mb-4 text-red-500 animate-shake";
+                feedbackIcon.className = "text-[6rem] lg:text-[10rem] mb-4 text-red-500 animate-shake font-sans";
                 feedbackIcon.innerHTML = '<i class="fa-solid fa-circle-xmark"></i>';
-                feedbackText.className = "text-4xl lg:text-6xl font-black text-red-600";
+                feedbackText.className = "text-4xl lg:text-6xl font-black text-red-600 tracking-widest";
             }
             feedbackText.textContent = message;
 
