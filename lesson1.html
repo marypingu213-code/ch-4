@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>第一關：部件組合</title>
-    <!-- 引入題庫資料 -->
-    <script src="data_lesson1.js"></script>
+    <script src="data_lesson1.js?v=2"></script>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -62,27 +61,22 @@
             <i class="fa-solid fa-arrow-left font-sans"></i> 回大廳
         </a>
 
-        <!-- 畫面一：選擇課次區 -->
-        <div id="lessonSelectionScreen" class="flex-grow flex flex-col items-center justify-center w-full z-10">
-            <h1 class="text-5xl lg:text-7xl font-black text-fuchsia-500 mb-8 drop-shadow-sm flex items-center gap-4 tracking-widest">
+        <div id="lessonSelectionScreen" class="flex-grow flex flex-col items-center justify-center w-full z-10 pb-8">
+            <h1 class="text-5xl lg:text-7xl font-black text-fuchsia-500 mb-12 drop-shadow-sm flex items-center gap-4 tracking-widest">
                 <i class="fa-solid fa-puzzle-piece text-fuchsia-300 font-sans"></i>
                 請選擇課次
             </h1>
             
-            <!-- 1~12課的網格按鈕 -->
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6 w-full max-w-5xl px-4">
-                <div id="lessonGrid" class="contents"></div>
-            </div>
+            <div id="lessonGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-10 w-full max-w-6xl px-6">
+                </div>
         </div>
 
-        <!-- 畫面二：遊戲作答區 (預設隱藏) -->
         <div id="gameScreen" class="hidden flex-grow flex-col items-center w-full relative z-10">
             
             <button onclick="backToSelection()" class="absolute top-0 right-2 lg:top-2 lg:right-2 bg-fuchsia-100 text-fuchsia-600 hover:bg-fuchsia-200 px-4 py-2 rounded-full font-bold text-lg lg:text-xl transition-colors z-30">
                 <i class="fa-solid fa-rotate-left font-sans mr-1"></i> 重選課次
             </button>
 
-            <!-- 標題與進度條 -->
             <div class="text-center w-full mb-4 lg:mb-6 mt-12 lg:mt-6">
                 <h2 id="currentLessonTitle" class="text-2xl lg:text-4xl font-bold text-fuchsia-400 mb-4 tracking-widest">第一課</h2>
                 <div class="w-full max-w-3xl mx-auto bg-gray-200 rounded-full h-3 lg:h-5 overflow-hidden shadow-inner">
@@ -93,17 +87,14 @@
 
             <div id="gameArea" class="flex-grow flex flex-col items-center justify-center w-full relative">
                 
-                <!-- 階段一：部件組合 -->
                 <div id="assemblyStage" class="w-full flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-12 animate-popIn px-4">
                     
-                    <!-- 左側：目標區 -->
                     <div class="flex flex-col items-center w-full lg:w-1/2 max-w-xl border-[6px] border-red-400 bg-red-50/40 rounded-[2rem] p-6 lg:p-8 shadow-sm">
                         <p class="text-red-500 font-black mb-4 lg:mb-8 text-2xl lg:text-4xl drop-shadow-sm flex items-center gap-3 tracking-widest">
                             <i class="fa-solid fa-arrow-down font-sans"></i> 拖曳至此組合
                         </p>
                         
                         <div id="targetBox" class="relative bg-white w-[260px] h-[260px] sm:w-[360px] sm:h-[360px] lg:w-[480px] lg:h-[480px] rounded-2xl shadow-inner border-4 border-gray-400 transition-colors overflow-hidden">
-                            <!-- 十字線裝飾 -->
                             <div class="absolute inset-0 pointer-events-none flex flex-col justify-center items-center z-0">
                                 <div class="w-full h-[2px] bg-gray-300 border-dashed"></div>
                             </div>
@@ -113,26 +104,22 @@
                         </div>
                     </div>
                     
-                    <!-- 右側：選項區 -->
                     <div class="flex flex-col items-center w-full lg:w-1/2 max-w-2xl border-[6px] border-blue-400 bg-blue-50/40 rounded-[2rem] p-6 lg:p-8 shadow-sm relative">
                         <p class="text-blue-500 font-black mb-4 lg:mb-8 text-2xl lg:text-4xl drop-shadow-sm flex items-center gap-3 tracking-widest">
                             <i class="fa-solid fa-hand-pointer animate-bounce font-sans"></i> 待選部件區
                         </p>
                         
                         <div id="optionsBox" class="flex flex-wrap justify-center gap-4 lg:gap-6 w-full min-h-[260px] content-start relative z-10">
-                            <!-- 選項由 JS 生成 -->
-                        </div>
+                            </div>
                     </div>
                 </div>
 
-                <!-- 組裝完成按鈕區 -->
                 <div id="actionArea" class="w-full flex justify-center mt-6 h-[60px]">
                     <button id="finishBtn" onclick="finishAssembly()" class="hidden bg-green-500 hover:bg-green-600 text-white text-2xl lg:text-4xl font-bold py-3 px-12 rounded-full shadow-lg transition-transform hover:scale-105 active:scale-95 tracking-widest z-30 relative">
                         <i class="fa-solid fa-check mr-2 font-sans"></i> 我拼好了
                     </button>
                 </div>
 
-                <!-- 階段二：選擇部首 -->
                 <div id="radicalStage" class="w-full flex flex-col items-center hidden absolute inset-0 bg-white/95 z-20 justify-center pb-10">
                     <div class="text-[7rem] sm:text-[10rem] lg:text-[15rem] font-black text-gray-800 mb-4 lg:mb-8 drop-shadow-xl border-b-8 border-pink-200 pb-2 leading-none" id="completedWordDisplay">
                         字
@@ -144,15 +131,13 @@
                     </h2>
                     
                     <div id="radicalOptionsBox" class="flex flex-wrap justify-center gap-4 lg:gap-8 w-full max-w-4xl">
-                        <!-- 部首選項由 JS 生成 -->
-                    </div>
+                        </div>
                 </div>
 
             </div>
         </div>
     </div>
 
-    <!-- 答對/答錯 回饋彈窗 -->
     <div id="feedbackModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 hidden pointer-events-none">
         <div class="bg-white rounded-[2rem] lg:rounded-[3rem] p-10 lg:p-16 flex flex-col items-center shadow-2xl animate-popIn pointer-events-auto">
             <div id="feedbackIcon" class="text-[6rem] lg:text-[10rem] mb-4"></div>
@@ -160,7 +145,6 @@
         </div>
     </div>
 
-    <!-- 恭喜過關彈窗 -->
     <div id="completionModal" class="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 hidden">
         <div class="bg-white rounded-[3rem] lg:rounded-[4rem] p-10 lg:p-20 flex flex-col items-center shadow-2xl animate-popIn border-[10px] border-fuchsia-400 max-w-2xl text-center">
             <i class="fa-solid fa-trophy text-[8rem] lg:text-[12rem] text-yellow-400 mb-6 animate-float font-sans"></i>
@@ -179,7 +163,7 @@
 
     <script>
         if (typeof lessonData === 'undefined') {
-            alert("題庫載入失敗！請確認 'data_lesson1.js' 檔案是否存在。");
+            alert("題庫載入失敗！請確認 'data_lesson1.js' 檔案是否正確且包含課次分類格式。");
         }
 
         let currentLessonKey = "";
@@ -199,17 +183,20 @@
             
             for (let i = 1; i <= 12; i++) {
                 const lessonKey = `lesson${i}`;
+                // 檢查該課次是否存在且有題目
                 const hasQuestions = lessonData[lessonKey] && lessonData[lessonKey].length > 0;
                 
                 const btn = document.createElement('button');
                 
                 if (hasQuestions) {
-                    btn.className = "bg-white border-4 border-fuchsia-300 text-fuchsia-600 text-3xl lg:text-4xl font-bold py-6 lg:py-10 rounded-2xl lg:rounded-[2rem] shadow-md hover:bg-fuchsia-50 hover:shadow-xl transition-transform hover:-translate-y-1 tracking-widest";
+                    // ★ 修正按鈕外觀：加高 py-8 lg:py-12，字體放大
+                    btn.className = "bg-white border-4 border-fuchsia-300 text-fuchsia-600 text-3xl lg:text-5xl font-black py-8 lg:py-12 rounded-2xl lg:rounded-[2.5rem] shadow-lg hover:bg-fuchsia-50 hover:shadow-2xl transition-transform hover:-translate-y-2 tracking-widest";
                     btn.innerText = `第 ${i} 課`;
                     btn.onclick = () => startLesson(lessonKey, i);
                 } else {
-                    btn.className = "bg-gray-100 border-4 border-gray-200 text-gray-400 text-3xl lg:text-4xl font-bold py-6 lg:py-10 rounded-2xl lg:rounded-[2rem] shadow-sm cursor-not-allowed tracking-widest relative overflow-hidden";
-                    btn.innerHTML = `第 ${i} 課 <span class="absolute text-sm bg-gray-300 text-white px-2 py-1 rounded-full bottom-2 right-2 font-sans">無題目</span>`;
+                    // 灰色不可點擊狀態
+                    btn.className = "bg-gray-100 border-4 border-gray-200 text-gray-400 text-3xl lg:text-5xl font-black py-8 lg:py-12 rounded-2xl lg:rounded-[2.5rem] shadow-sm cursor-not-allowed tracking-widest relative overflow-hidden";
+                    btn.innerHTML = `第 ${i} 課 <span class="absolute text-sm bg-gray-300 text-white px-3 py-1 rounded-full bottom-3 right-3 font-sans shadow-inner">無題目</span>`;
                 }
                 
                 lessonGrid.appendChild(btn);
