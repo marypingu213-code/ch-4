@@ -55,7 +55,7 @@
 </head>
 <body class="h-screen w-screen text-gray-800 flex flex-col items-center justify-center p-2 lg:p-6">
 
-    <div class="w-full h-full max-w-[1800px] max-h-[1200px] bg-white/95 backdrop-blur-sm p-4 sm:p-6 lg:p-10 rounded-[2rem] lg:rounded-[3rem] shadow-2xl relative border-4 lg:border-8 border-fuchsia-200 flex flex-col">
+    <div class="w-full h-full max-w-[1800px] max-h-[1200px] bg-white/95 backdrop-blur-sm p-4 sm:p-6 lg:p-8 rounded-[2rem] lg:rounded-[3rem] shadow-2xl relative border-4 lg:border-8 border-fuchsia-200 flex flex-col">
         
         <a href="index.html" class="absolute top-4 left-4 lg:top-6 lg:left-6 text-gray-400 hover:text-fuchsia-600 transition-colors text-xl lg:text-2xl font-bold flex items-center gap-2 no-underline z-20">
             <i class="fa-solid fa-arrow-left font-sans"></i> 回大廳
@@ -73,28 +73,28 @@
 
         <div id="gameScreen" class="hidden flex-grow flex-col items-center w-full relative z-10">
             
-            <button onclick="backToSelection()" class="absolute top-0 right-2 lg:top-2 lg:right-2 bg-fuchsia-100 text-fuchsia-600 hover:bg-fuchsia-200 px-4 py-2 rounded-full font-bold text-lg lg:text-xl transition-colors z-30">
+            <button onclick="backToSelection()" class="absolute top-0 right-2 lg:top-0 lg:right-2 bg-fuchsia-100 text-fuchsia-600 hover:bg-fuchsia-200 px-4 py-2 rounded-full font-bold text-lg lg:text-xl transition-colors z-30">
                 <i class="fa-solid fa-rotate-left font-sans mr-1"></i> 重選課次
             </button>
 
-            <div class="text-center w-full mb-4 lg:mb-6 mt-12 lg:mt-6">
-                <h2 id="currentLessonTitle" class="text-2xl lg:text-4xl font-bold text-fuchsia-400 mb-4 tracking-widest">第一課</h2>
-                <div class="w-full max-w-3xl mx-auto bg-gray-200 rounded-full h-3 lg:h-5 overflow-hidden shadow-inner">
+            <div class="text-center w-full mb-2 lg:mb-4 mt-10 lg:mt-2">
+                <h2 id="currentLessonTitle" class="text-2xl lg:text-4xl font-bold text-fuchsia-400 mb-2 tracking-widest">第一課</h2>
+                <div class="w-full max-w-3xl mx-auto bg-gray-200 rounded-full h-3 lg:h-4 overflow-hidden shadow-inner">
                     <div id="progressBar" class="bg-gradient-to-r from-fuchsia-400 to-pink-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
                 </div>
-                <p id="progressText" class="text-base lg:text-xl text-gray-400 font-bold mt-2 text-center font-sans">0 / 0</p>
+                <p id="progressText" class="text-base lg:text-lg text-gray-400 font-bold mt-1 text-center font-sans">0 / 0</p>
             </div>
 
-            <div id="gameArea" class="flex-grow flex flex-col items-center justify-center w-full relative">
+            <div id="gameArea" class="flex-grow flex flex-col items-center justify-center w-full relative pb-2">
                 
-                <div id="assemblyStage" class="w-full flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-12 animate-popIn px-4">
+                <div id="assemblyStage" class="w-full flex flex-col lg:flex-row items-center justify-center gap-4 lg:gap-8 animate-popIn px-2">
                     
-                    <div class="flex flex-col items-center w-full lg:w-1/2 max-w-xl border-[6px] border-red-400 bg-red-50/40 rounded-[2rem] p-6 lg:p-8 shadow-sm">
-                        <p class="text-red-500 font-black mb-4 lg:mb-8 text-2xl lg:text-4xl drop-shadow-sm flex items-center gap-3 tracking-widest">
+                    <div class="flex flex-col items-center w-full lg:w-1/2 max-w-xl border-[6px] border-red-400 bg-red-50/40 rounded-[2rem] p-4 lg:p-6 shadow-sm">
+                        <p class="text-red-500 font-black mb-2 lg:mb-4 text-2xl lg:text-3xl drop-shadow-sm flex items-center gap-3 tracking-widest">
                             <i class="fa-solid fa-arrow-down font-sans"></i> 拖曳至此組合
                         </p>
                         
-                        <div id="targetBox" class="relative bg-white w-[260px] h-[260px] sm:w-[360px] sm:h-[360px] lg:w-[480px] lg:h-[480px] rounded-2xl shadow-inner border-4 border-gray-400 transition-colors overflow-hidden">
+                        <div id="targetBox" class="relative bg-white w-[260px] h-[260px] sm:w-[320px] sm:h-[320px] lg:w-[400px] lg:h-[400px] rounded-2xl shadow-inner border-4 border-gray-400 transition-colors overflow-hidden">
                             <div class="absolute inset-0 pointer-events-none flex flex-col justify-center items-center z-0">
                                 <div class="w-full h-[2px] bg-gray-300 border-dashed"></div>
                             </div>
@@ -104,17 +104,17 @@
                         </div>
                     </div>
                     
-                    <div class="flex flex-col items-center w-full lg:w-1/2 max-w-2xl border-[6px] border-blue-400 bg-blue-50/40 rounded-[2rem] p-6 lg:p-8 shadow-sm relative">
-                        <p class="text-blue-500 font-black mb-4 lg:mb-8 text-2xl lg:text-4xl drop-shadow-sm flex items-center gap-3 tracking-widest">
+                    <div class="flex flex-col items-center w-full lg:w-1/2 max-w-2xl border-[6px] border-blue-400 bg-blue-50/40 rounded-[2rem] p-4 lg:p-6 shadow-sm relative">
+                        <p class="text-blue-500 font-black mb-2 lg:mb-4 text-2xl lg:text-3xl drop-shadow-sm flex items-center gap-3 tracking-widest">
                             <i class="fa-solid fa-hand-pointer animate-bounce font-sans"></i> 待選部件區
                         </p>
                         
-                        <div id="optionsBox" class="flex flex-wrap justify-center gap-4 lg:gap-6 w-full min-h-[260px] content-start relative z-10">
+                        <div id="optionsBox" class="flex flex-wrap justify-center gap-4 lg:gap-6 w-full min-h-[220px] lg:min-h-[260px] content-start relative z-10">
                             </div>
                     </div>
                 </div>
 
-                <div id="actionArea" class="w-full flex justify-center mt-6 h-[60px]">
+                <div id="actionArea" class="w-full flex justify-center mt-4 h-[60px]">
                     <button id="finishBtn" onclick="finishAssembly()" class="hidden bg-green-500 hover:bg-green-600 text-white text-2xl lg:text-4xl font-bold py-3 px-12 rounded-full shadow-lg transition-transform hover:scale-105 active:scale-95 tracking-widest z-30 relative">
                         <i class="fa-solid fa-check mr-2 font-sans"></i> 我拼好了
                     </button>
@@ -183,18 +183,15 @@
             
             for (let i = 1; i <= 12; i++) {
                 const lessonKey = `lesson${i}`;
-                // 檢查該課次是否存在且有題目
                 const hasQuestions = lessonData[lessonKey] && lessonData[lessonKey].length > 0;
                 
                 const btn = document.createElement('button');
                 
                 if (hasQuestions) {
-                    // ★ 修正按鈕外觀：加高 py-8 lg:py-12，字體放大
                     btn.className = "bg-white border-4 border-fuchsia-300 text-fuchsia-600 text-3xl lg:text-5xl font-black py-8 lg:py-12 rounded-2xl lg:rounded-[2.5rem] shadow-lg hover:bg-fuchsia-50 hover:shadow-2xl transition-transform hover:-translate-y-2 tracking-widest";
                     btn.innerText = `第 ${i} 課`;
                     btn.onclick = () => startLesson(lessonKey, i);
                 } else {
-                    // 灰色不可點擊狀態
                     btn.className = "bg-gray-100 border-4 border-gray-200 text-gray-400 text-3xl lg:text-5xl font-black py-8 lg:py-12 rounded-2xl lg:rounded-[2.5rem] shadow-sm cursor-not-allowed tracking-widest relative overflow-hidden";
                     btn.innerHTML = `第 ${i} 課 <span class="absolute text-sm bg-gray-300 text-white px-3 py-1 rounded-full bottom-3 right-3 font-sans shadow-inner">無題目</span>`;
                 }
@@ -279,7 +276,8 @@
                 const isImage = comp.toLowerCase().endsWith('.png') || comp.toLowerCase().endsWith('.jpg');
                 const paddingClass = isImage ? 'p-1 lg:p-3' : 'p-3 lg:p-6';
 
-                pieceDiv.className = `draggable-piece touch-none w-40 h-40 sm:w-48 sm:h-48 lg:w-56 lg:h-56 bg-white border-4 border-gray-200 rounded-2xl lg:rounded-3xl shadow-md hover:shadow-xl hover:border-blue-400 cursor-grab active:cursor-grabbing flex items-center justify-center text-4xl lg:text-7xl font-bold text-gray-700 z-10 ${paddingClass} relative`;
+                // 稍微調小藍框裡的待選部件卡片尺寸
+                pieceDiv.className = `draggable-piece touch-none w-36 h-36 sm:w-44 sm:h-44 lg:w-48 lg:h-48 bg-white border-4 border-gray-200 rounded-2xl lg:rounded-3xl shadow-md hover:shadow-xl hover:border-blue-400 cursor-grab active:cursor-grabbing flex items-center justify-center text-4xl lg:text-7xl font-bold text-gray-700 z-10 ${paddingClass} relative`;
                 
                 pieceDiv.innerHTML = renderPieceContent(comp);
                 pieceDiv.dataset.compContent = comp; 
