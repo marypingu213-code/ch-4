@@ -37,40 +37,42 @@
         }
     </style>
 </head>
-<body class="h-screen w-screen text-gray-800 flex flex-col items-center justify-center p-4 lg:p-8">
+<body class="h-screen w-screen text-gray-800 flex flex-col items-center justify-center p-2 lg:p-6">
 
-    <div class="w-full h-full max-w-[1600px] max-h-[1200px] bg-white/95 backdrop-blur-sm p-6 sm:p-10 lg:p-14 rounded-[3rem] lg:rounded-[4rem] shadow-2xl relative border-4 lg:border-8 border-purple-200 flex flex-col">
+    <!-- 縮小了外層的 padding (p-4 sm:p-6 lg:p-8) 以爭取更多內部空間 -->
+    <div class="w-full h-full max-w-[1600px] max-h-[1200px] bg-white/95 backdrop-blur-sm p-4 sm:p-6 lg:p-8 rounded-[2rem] lg:rounded-[3rem] shadow-2xl relative border-4 lg:border-8 border-purple-200 flex flex-col">
         
-        <a href="index.html" class="absolute top-5 left-5 lg:top-8 lg:left-8 text-gray-400 hover:text-purple-600 transition-colors text-xl lg:text-2xl font-bold flex items-center gap-2 no-underline z-10">
+        <a href="index.html" class="absolute top-4 left-4 lg:top-6 lg:left-6 text-gray-400 hover:text-purple-600 transition-colors text-xl lg:text-2xl font-bold flex items-center gap-2 no-underline z-10">
             <i class="fa-solid fa-arrow-left font-sans"></i> 回大廳
         </a>
 
-        <!-- 進度條 (標題已移除) -->
-        <div class="text-center mb-4 lg:mb-8 mt-10 lg:mt-4">
-            <div class="w-full max-w-3xl mx-auto bg-gray-200 rounded-full h-3 lg:h-5 overflow-hidden shadow-inner">
+        <!-- 進度條 (縮小了 margin-top 與 margin-bottom) -->
+        <div class="text-center mb-2 mt-8 lg:mt-2">
+            <div class="w-full max-w-3xl mx-auto bg-gray-200 rounded-full h-3 lg:h-4 overflow-hidden shadow-inner">
                 <div id="progressBar" class="bg-gradient-to-r from-purple-400 to-fuchsia-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
             </div>
-            <p id="progressText" class="text-base lg:text-xl text-gray-400 font-bold mt-2 text-center font-sans">0 / 0</p>
+            <p id="progressText" class="text-base lg:text-lg text-gray-400 font-bold mt-1 text-center font-sans">0 / 0</p>
         </div>
 
-        <div class="flex-grow flex flex-col items-center w-full relative z-10 justify-evenly">
+        <!-- 主內容區 (改為 justify-center 並使用 gap 控制間距，讓物件緊密靠攏) -->
+        <div class="flex-grow flex flex-col items-center justify-center w-full relative z-10 gap-4 lg:gap-6 pb-2">
             
-            <!-- 提示文字 -->
-            <div id="instructionText" class="text-3xl lg:text-5xl text-purple-700 font-black mb-4 bg-purple-100 px-8 py-4 rounded-full shadow-sm animate-float tracking-widest">
+            <!-- 提示文字 (微調 padding 讓高度變小) -->
+            <div id="instructionText" class="text-3xl lg:text-5xl text-purple-700 font-black bg-purple-100 px-8 py-3 rounded-full shadow-sm animate-float tracking-widest">
                 請點擊句子中的「錯字」！
             </div>
 
-            <!-- 句子顯示區 (大字塊) -->
-            <div id="sentenceArea" class="flex flex-wrap justify-center gap-2 lg:gap-4 p-4 lg:p-8 bg-purple-50/50 border-4 border-dashed border-purple-200 rounded-[2rem] w-full max-w-5xl">
+            <!-- 句子顯示區 (縮小 padding，讓長句子換行時更省空間) -->
+            <div id="sentenceArea" class="flex flex-wrap justify-center gap-2 lg:gap-3 p-4 lg:p-6 bg-purple-50/50 border-4 border-dashed border-purple-200 rounded-[2rem] w-full max-w-5xl">
                 <!-- 字塊由 JS 生成 -->
             </div>
 
-            <!-- 選項區 (預設隱藏) -->
-            <div id="optionsArea" class="hidden w-full flex flex-col items-center gap-6 mt-4">
+            <!-- 選項區 (緊貼著句子區) -->
+            <div id="optionsArea" class="hidden w-full flex flex-col items-center gap-4">
                 <div class="text-2xl lg:text-4xl text-gray-600 font-bold border-b-4 border-fuchsia-200 pb-2 tracking-widest">
                     請問正確的字是哪一個？
                 </div>
-                <div id="choicesBox" class="flex justify-center gap-4 lg:gap-8">
+                <div id="choicesBox" class="flex justify-center gap-3 lg:gap-6">
                     <!-- 選項按鈕由 JS 生成 -->
                 </div>
             </div>
@@ -135,7 +137,7 @@
             document.getElementById('optionsArea').classList.add('hidden');
             const instructionText = document.getElementById('instructionText');
             instructionText.innerText = '請點擊句子中的「錯字」！';
-            instructionText.className = "text-3xl lg:text-5xl text-purple-700 font-black mb-4 bg-purple-100 px-8 py-4 rounded-full shadow-sm animate-float tracking-widest";
+            instructionText.className = "text-3xl lg:text-5xl text-purple-700 font-black bg-purple-100 px-8 py-3 rounded-full shadow-sm animate-float tracking-widest";
 
             const sentenceArea = document.getElementById('sentenceArea');
             sentenceArea.innerHTML = '';
@@ -150,10 +152,10 @@
                 const isPunctuation = /[\u3002\uff0c\uff1f\uff01\u3001\u3008\u3009\u300a\u300b\u300c\u300d\u300e\u300f\u2014\u2013\u2026\u2025\uFE30-\uFE4F]/.test(char);
                 
                 if (isPunctuation) {
-                    charBox.className = "text-4xl sm:text-5xl lg:text-7xl font-bold text-gray-500 flex items-end pb-2";
+                    charBox.className = "text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-500 flex items-end pb-2";
                     charBox.innerText = char;
                 } else {
-                    charBox.className = "char-tile w-16 h-16 sm:w-20 sm:h-20 lg:w-28 lg:h-28 bg-white border-4 border-gray-300 rounded-xl lg:rounded-2xl shadow-sm flex items-center justify-center text-4xl sm:text-5xl lg:text-7xl font-bold text-gray-800 cursor-pointer hover:border-purple-400 hover:bg-purple-50 flex-shrink-0";
+                    charBox.className = "char-tile w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 bg-white border-4 border-gray-300 rounded-xl lg:rounded-2xl shadow-sm flex items-center justify-center text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-800 cursor-pointer hover:border-purple-400 hover:bg-purple-50 flex-shrink-0";
                     charBox.innerText = char;
                     charBox.onclick = () => handleCharClick(charBox, char, currentData.wrongChar);
                 }
@@ -203,7 +205,7 @@
 
             choices.forEach(choice => {
                 const btn = document.createElement('button');
-                btn.className = "w-20 h-20 sm:w-24 sm:h-24 lg:w-32 lg:h-32 bg-white border-4 border-fuchsia-300 text-fuchsia-700 text-4xl sm:text-5xl lg:text-7xl font-bold rounded-2xl shadow-md hover:bg-fuchsia-50 hover:border-fuchsia-500 hover:shadow-xl transition-all hover:-translate-y-2 flex items-center justify-center";
+                btn.className = "w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 bg-white border-4 border-fuchsia-300 text-fuchsia-700 text-4xl sm:text-5xl lg:text-6xl font-bold rounded-2xl shadow-md hover:bg-fuchsia-50 hover:border-fuchsia-500 hover:shadow-xl transition-all hover:-translate-y-2 flex items-center justify-center";
                 btn.innerText = choice;
                 btn.onclick = () => handleCorrectionSelect(choice, currentData.correctChar);
                 choicesBox.appendChild(btn);
