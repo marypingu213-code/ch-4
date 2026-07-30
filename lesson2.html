@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第二關：句子重組</title>
+    <!-- 引入第二關專屬題庫 -->
+    <script src="data_lesson2.js"></script>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'BiaoKai', 'DFKai-SB', '楷體-繁', 'Kaiti TC', serif;
+            background-color: #e0f2fe; /* 換成清爽的水藍色背景區隔關卡 */
+            background-image: radial-gradient(#bae6fd 3px, transparent 3px);
+            background-size: 40px 40px;
+            user-select: none; 
+            overflow-x: hidden; 
+        }
+
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        .animate-float { animation: float 2.5s ease-in-out infinite; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+        .animate-shake { animation: shake 0.4s ease-in-out; }
+        @keyframes popIn { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .animate-popIn { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+        /* 句子字卡拖曳樣式 */
+        .sentence-card {
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+        .sentence-card.is-dragging {
+            opacity: 0.9;
+            transform: scale(1.02);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            z-index: 1000 !important;
+        }
+        
+        /* 放置區的虛線框 */
+        .drop-slot {
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        .drop-slot.drag-over {
+            background-color: #dbeafe;
+            border-color: #3b82f6;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-gray-800 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
+
+    <div class="w-full max-w-[1600px] flex-grow bg-white/95 backdrop-blur-sm p-6 sm:p-8 lg:p-12 rounded-[2rem] lg:rounded-[3rem] shadow-2xl relative border-4 lg:border-8 border-blue-200 flex flex-col">
+        
+        <a href="index.html" class="absolute top-5 left-5 lg:top-8 lg:left-8 text-gray-400 hover:text-blue-600 transition-colors text-xl lg:text-2xl font-bold flex items-center gap-2 no-underline z-10">
+            <i class="fa-solid fa-arrow-left font-sans"></i> 回大廳
+        </a>
+
+        <!-- 標題與進度條 -->
+        <div class="text-center mb-6 lg:mb-10 mt-10 lg:mt-4">
+            <h1 class="text-3xl sm:text-4xl lg:text-6xl font-black text-blue-600 drop-shadow-sm flex items-center justify-center gap-4">
+                <i class="fa-solid fa-layer-group text-blue-400 font-sans"></i>
+                句子重組大挑戰
+            </h1>
+            <p class="text-gray-500 font-bold mt-3 text-lg lg:text-2xl">請將下方的短語拖曳到上方，排成通順的句子！</p>
+            
+            <div class="w-full max-w-3xl mx-auto bg-gray-200 rounded-full h-3 lg:h-5 mt-5 lg:mt-8 overflow-hidden shadow-inner">
+                <div id="progressBar" class="bg-gradient-to-r from-blue-400 to-cyan-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <p id="progressText" class="text-base lg:text-xl text-gray-400 font-bold mt-2 text-center font-sans">0 / 0</p>
+        </div>
+
+        <div class="flex-grow flex flex-col w-full gap-8 lg:gap-12 relative z-10">
+            
+            <!-- 上半部：作答區 (空缺的格子) -->
+            <div class="w-full bg-blue-50/50 border-[4px] border-blue-200 rounded-[2rem] p-6 lg:p-10 flex flex-col gap-4" id="targetArea">
+                <div class="text-blue-500 font-black text-2xl lg:text-3xl mb-2 flex items-center gap-3">
+                    <i class="fa-solid fa-list-ol font-sans"></i> 組合區
+                </div>
+                <!-- 排序插槽由 JS 動態生成 -->
+            </div>
+
+            <!-- 下半部：待選字卡區 -->
+            <div class="w-full bg-gray-50 border-[4px] border-gray-200 rounded-[2rem] p-6 lg:p-10 flex flex-wrap justify-center items-center gap-4 min-h-[150px]" id="optionsArea">
+                <!-- 字卡由 JS 動態生成 -->
+            </div>
+
+            <!-- 完成按鈕 -->
+            <div class="w-full flex justify-center mt-4 h-[60px]">
+                <button id="finishBtn" onclick="checkAnswer()" class="hidden bg-green-500 hover:bg-green-600 text-white text-2xl lg:text-4xl font-bold py-3 px-12 rounded-full shadow-lg transition-transform hover:scale-105 active:scale-95 tracking-widest">
+                    <i class="fa-solid fa-check mr-2 font-sans"></i> 我排好了
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 答對/答錯 回饋彈窗 -->
+    <div id="feedbackModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 hidden pointer-events-none">
+        <div class="bg-white rounded-[2rem] lg:rounded-[3rem] p-10 lg:p-16 flex flex-col items-center shadow-2xl animate-popIn pointer-events-auto">
+            <div id="feedbackIcon" class="text-[6rem] lg:text-[10rem] mb-4"></div>
+            <h2 id="feedbackText" class="text-4xl lg:text-6xl font-black tracking-widest"></h2>
+        </div>
+    </div>
+
+    <!-- 恭喜過關彈窗 -->
+    <div id="completionModal" class="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-[3rem] lg:rounded-[4rem] p-10 lg:p-20 flex flex-col items-center shadow-2xl animate-popIn border-[10px] border-blue-400 max-w-2xl text-center">
+            <i class="fa-solid fa-medal text-[8rem] lg:text-[12rem] text-yellow-400 mb-6 animate-float font-sans"></i>
+            <h2 class="text-5xl lg:text-7xl font-black text-blue-600 mb-4 drop-shadow-sm tracking-widest">挑戰成功！</h2>
+            <p class="text-2xl lg:text-3xl font-bold text-gray-600 mb-10">你已完成所有句子重組！</p>
+            <button onclick="window.location.href='index.html'" class="bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-3xl lg:text-4xl font-black py-4 px-12 rounded-full shadow-xl hover:shadow-2xl hover:scale-105 transition-all tracking-widest">
+                回到大廳
+            </button>
+        </div>
+    </div>
+
+    <script>
+        if (typeof lessonData2 === 'undefined') {
+            alert("題庫載入失敗！請確認 'data_lesson2.js' 檔案是否存在。");
+        }
+
+        let currentQuestionIndex = 0;
+        let originalOrder = []; 
+
+        window.onload = () => {
+            if (typeof lessonData2 !== 'undefined') initGame();
+        };
+
+        function initGame() {
+            updateProgress();
+            loadQuestion();
+        }
+
+        function updateProgress() {
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            const percentage = (currentQuestionIndex / lessonData2.length) * 100;
+            progressBar.style.width = percentage + '%';
+            progressText.innerText = (currentQuestionIndex + 1) + ' / ' + lessonData2.length;
+        }
+
+        function loadQuestion() {
+            document.getElementById('finishBtn').classList.add('hidden');
+            const targetArea = document.getElementById('targetArea');
+            const optionsArea = document.getElementById('optionsArea');
+            
+            // 清空舊區域，保留標題
+            targetArea.innerHTML = `<div class="text-blue-500 font-black text-2xl lg:text-3xl mb-2 flex items-center gap-3"><i class="fa-solid fa-list-ol font-sans"></i> 組合區</div>`;
+            optionsArea.innerHTML = '';
+
+            const currentData = lessonData2[currentQuestionIndex];
+            originalOrder = currentData.sentence; // 記下正確解答順序
+            
+            // 建立插槽 (依據句子數量)
+            originalOrder.forEach((_, index) => {
+                const slot = document.createElement('div');
+                slot.className = "drop-slot w-full h-[80px] lg:h-[100px] border-4 border-dashed border-gray-300 rounded-xl flex items-center justify-center text-gray-300 font-bold text-xl lg:text-3xl bg-white/50";
+                slot.dataset.slotIndex = index;
+                slot.innerHTML = `<span>放這裡 (${index + 1})</span>`;
+                targetArea.appendChild(slot);
+            });
+
+            // 打散字卡並生成
+            let shuffledPhrases = [...originalOrder].sort(() => Math.random() - 0.5);
+            
+            shuffledPhrases.forEach((phrase) => {
+                const card = document.createElement('div');
+                card.className = "sentence-card touch-none bg-white border-4 border-blue-400 text-blue-800 rounded-2xl px-6 py-4 text-3xl lg:text-5xl font-bold shadow-md cursor-grab active:cursor-grabbing text-center min-w-[200px] flex items-center justify-center";
+                card.textContent = phrase;
+                card.dataset.phrase = phrase;
+                card.addEventListener('pointerdown', onPointerDown);
+                optionsArea.appendChild(card);
+            });
+        }
+
+        // --- 拖曳核心邏輯 (為插槽適配) ---
+        let draggedCard = null;
+        let shiftX = 0, shiftY = 0;
+        let placeholder = null;
+
+        function onPointerDown(e) {
+            if (e.pointerType === 'mouse' && e.button !== 0) return;
+            e.preventDefault();
+            
+            draggedCard = e.currentTarget;
+            draggedCard.classList.add('is-dragging');
+            
+            const rect = draggedCard.getBoundingClientRect();
+            shiftX = e.clientX - rect.left;
+            shiftY = e.clientY - rect.top;
+            
+            placeholder = document.createElement('div');
+            placeholder.className = draggedCard.className;
+            placeholder.classList.remove('is-dragging');
+            placeholder.style.visibility = 'hidden';
+            draggedCard.parentNode.insertBefore(placeholder, draggedCard);
+            
+            document.body.appendChild(draggedCard);
+            draggedCard.style.position = 'fixed';
+            draggedCard.style.zIndex = '9999';
+            draggedCard.style.pointerEvents = 'none';
+            
+            moveAt(e.clientX, e.clientY);
+        }
+
+        function onPointerMove(e) {
+            if (!draggedCard) return;
+            e.preventDefault();
+            moveAt(e.clientX, e.clientY);
+        }
+
+        function moveAt(pageX, pageY) {
+            draggedCard.style.left = pageX - shiftX + 'px';
+            draggedCard.style.top = pageY - shiftY + 'px';
+        }
+
+        function onPointerUp(e) {
+            if (!draggedCard) return;
+            
+            draggedCard.style.display = 'none';
+            const elemBelow = document.elementFromPoint(e.clientX, e.clientY);
+            draggedCard.style.display = '';
+            
+            draggedCard.classList.remove('is-dragging');
+            draggedCard.style.position = '';
+            draggedCard.style.left = '';
+            draggedCard.style.top = '';
+            draggedCard.style.zIndex = '';
+            draggedCard.style.pointerEvents = 'auto'; 
+            
+            // 尋找最近的插槽 (drop-slot)
+            let targetSlot = elemBelow ? elemBelow.closest('.drop-slot') : null;
+            const optionsArea = document.getElementById('optionsArea');
+            
+            if (targetSlot) {
+                // 如果插槽裡面已經有卡片，把舊卡片擠回待選區
+                const existingCard = targetSlot.querySelector('.sentence-card');
+                if (existingCard) {
+                    optionsArea.appendChild(existingCard);
+                }
+                // 放入新卡片，移除虛線框的文字
+                targetSlot.innerHTML = '';
+                targetSlot.appendChild(draggedCard);
+                draggedCard.style.width = '100%'; // 撐滿插槽
+                draggedCard.style.height = '100%';
+            } else {
+                // 丟到外面就回到待選區
+                optionsArea.appendChild(draggedCard);
+                draggedCard.style.width = 'auto';
+                draggedCard.style.height = 'auto';
+            }
+            
+            if (placeholder && placeholder.parentNode) placeholder.parentNode.removeChild(placeholder);
+            
+            // 檢查是否所有插槽都補滿，如果滿了就顯示「我排好了」按鈕
+            checkIfFull();
+            
+            draggedCard = null;
+            placeholder = null;
+        }
+
+        document.addEventListener('pointermove', onPointerMove, { passive: false });
+        document.addEventListener('pointerup', onPointerUp);
+        document.addEventListener('pointercancel', onPointerUp);
+
+        function checkIfFull() {
+            const slots = document.querySelectorAll('.drop-slot');
+            let isFull = true;
+            slots.forEach(slot => {
+                if (!slot.querySelector('.sentence-card')) isFull = false;
+            });
+
+            const finishBtn = document.getElementById('finishBtn');
+            if (isFull) {
+                finishBtn.classList.remove('hidden');
+                finishBtn.classList.add('animate-popIn');
+            } else {
+                finishBtn.classList.add('hidden');
+                finishBtn.classList.remove('animate-popIn');
+            }
+        }
+
+        function checkAnswer() {
+            const slots = document.querySelectorAll('.drop-slot');
+            let isCorrect = true;
+
+            slots.forEach((slot, index) => {
+                const card = slot.querySelector('.sentence-card');
+                if (card.dataset.phrase !== originalOrder[index]) {
+                    isCorrect = false;
+                }
+            });
+
+            if (isCorrect) {
+                showFeedback(true, "順序正確！");
+                setTimeout(() => {
+                    currentQuestionIndex++;
+                    if (currentQuestionIndex >= lessonData2.length) {
+                        document.getElementById('completionModal').classList.remove('hidden');
+                    } else {
+                        initGame();
+                    }
+                }, 1500);
+            } else {
+                showFeedback(false, "順序有錯喔！再試試看");
+            }
+        }
+
+        function showFeedback(isCorrect, message) {
+            const feedbackModal = document.getElementById('feedbackModal');
+            const feedbackIcon = document.getElementById('feedbackIcon');
+            const feedbackText = document.getElementById('feedbackText');
+
+            feedbackModal.classList.remove('hidden');
+            
+            if (isCorrect) {
+                feedbackIcon.className = "text-[6rem] lg:text-[10rem] mb-4 text-green-500 font-sans animate-popIn";
+                feedbackIcon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+                feedbackText.className = "text-4xl lg:text-6xl font-black text-green-600 tracking-widest";
+            } else {
+                feedbackIcon.className = "text-[6rem] lg:text-[10rem] mb-4 text-red-500 animate-shake font-sans";
+                feedbackIcon.innerHTML = '<i class="fa-solid fa-circle-xmark"></i>';
+                feedbackText.className = "text-4xl lg:text-6xl font-black text-red-600 tracking-widest";
+            }
+            feedbackText.textContent = message;
+
+            setTimeout(() => {
+                feedbackModal.classList.add('hidden');
+            }, 1200);
+        }
+    </script>
+</body>
+</html>
