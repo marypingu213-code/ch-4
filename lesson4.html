@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第四關：綜合選擇題</title>
+    <!-- 引入第四關專屬題庫 -->
+    <script src="data_lesson4.js"></script>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'BiaoKai', 'DFKai-SB', '楷體-繁', 'Kaiti TC', serif;
+            background-color: #fff7ed; /* 淡橘色背景 */
+            background-image: radial-gradient(#ffedd5 3px, transparent 3px);
+            background-size: 40px 40px;
+            user-select: none; 
+            overflow: hidden; 
+        }
+
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        .animate-float { animation: float 2.5s ease-in-out infinite; }
+        
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+        .animate-shake { animation: shake 0.4s ease-in-out; }
+        
+        @keyframes popIn { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .animate-popIn { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+        /* 選項按鈕點擊特效 */
+        .option-btn:active {
+            transform: scale(0.97);
+        }
+    </style>
+</head>
+<body class="h-screen w-screen text-gray-800 flex flex-col items-center justify-center p-2 lg:p-6">
+
+    <div class="w-full h-full max-w-[1600px] max-h-[1200px] bg-white/95 backdrop-blur-sm p-4 sm:p-6 lg:p-10 rounded-[2rem] lg:rounded-[3rem] shadow-2xl relative border-4 lg:border-8 border-orange-200 flex flex-col">
+        
+        <a href="index.html" class="absolute top-4 left-4 lg:top-6 lg:left-6 text-gray-400 hover:text-orange-500 transition-colors text-xl lg:text-2xl font-bold flex items-center gap-2 no-underline z-20">
+            <i class="fa-solid fa-arrow-left font-sans"></i> 回大廳
+        </a>
+
+        <!-- 畫面一：選擇課次區 -->
+        <div id="lessonSelectionScreen" class="flex-grow flex flex-col items-center justify-center w-full z-10">
+            <h1 class="text-5xl lg:text-7xl font-black text-orange-500 mb-8 drop-shadow-sm flex items-center gap-4 tracking-widest">
+                <i class="fa-solid fa-book-open text-orange-300 font-sans"></i>
+                請選擇課次
+            </h1>
+            
+            <!-- 1~12課的網格按鈕 -->
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6 w-full max-w-5xl px-4">
+                <!-- 按鈕由 JS 動態生成 -->
+                <div id="lessonGrid" class="contents"></div>
+            </div>
+        </div>
+
+        <!-- 畫面二：答題區 (預設隱藏) -->
+        <div id="quizScreen" class="hidden flex-grow flex-col items-center w-full z-10">
+            
+            <button onclick="backToSelection()" class="absolute top-4 right-4 lg:top-6 lg:right-6 bg-orange-100 text-orange-600 hover:bg-orange-200 px-4 py-2 rounded-full font-bold text-lg lg:text-xl transition-colors">
+                <i class="fa-solid fa-rotate-left font-sans mr-1"></i> 重選課次
+            </button>
+
+            <!-- 進度條 -->
+            <div class="text-center w-full mt-10 lg:mt-6 mb-4 lg:mb-8">
+                <h2 id="currentLessonTitle" class="text-2xl lg:text-4xl font-bold text-orange-400 mb-4 tracking-widest">第一課</h2>
+                <div class="w-full max-w-3xl mx-auto bg-gray-200 rounded-full h-3 lg:h-4 overflow-hidden shadow-inner">
+                    <div id="progressBar" class="bg-gradient-to-r from-orange-400 to-rose-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+                <p id="progressText" class="text-base lg:text-xl text-gray-400 font-bold mt-2 text-center font-sans">0 / 0</p>
+            </div>
+
+            <!-- 題目區 -->
+            <div class="w-full flex justify-center mb-6 lg:mb-10">
+                <div id="questionBox" class="text-3xl lg:text-5xl text-gray-800 font-black bg-orange-50/80 border-4 border-orange-200 px-8 py-10 rounded-[2rem] shadow-sm tracking-wide leading-snug max-w-4xl text-center">
+                    題目載入中...
+                </div>
+            </div>
+
+            <!-- 4個選項區 (2x2網格) -->
+            <div id="optionsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-8 w-full max-w-4xl mx-auto pb-4">
+                <!-- 選項按鈕由 JS 生成 -->
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 答對/答錯 回饋彈窗 -->
+    <div id="feedbackModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 hidden pointer-events-none">
+        <div class="bg-white rounded-[2rem] lg:rounded-[3rem] p-10 lg:p-16 flex flex-col items-center shadow-2xl pointer-events-auto transition-transform">
+            <div id="feedbackIcon" class="text-[6rem] lg:text-[10rem] mb-4"></div>
+            <h2 id="feedbackText" class="text-4xl lg:text-6xl font-black tracking-widest"></h2>
+        </div>
+    </div>
+
+    <!-- 恭喜過關彈窗 -->
+    <div id="completionModal" class="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-[3rem] lg:rounded-[4rem] p-10 lg:p-20 flex flex-col items-center shadow-2xl border-[10px] border-orange-400 max-w-2xl text-center">
+            <i class="fa-solid fa-award text-[8rem] lg:text-[12rem] text-yellow-400 mb-6 animate-float font-sans"></i>
+            <h2 class="text-5xl lg:text-7xl font-black text-orange-500 mb-4 drop-shadow-sm tracking-widest">測驗完成！</h2>
+            <p class="text-2xl lg:text-3xl font-bold text-gray-600 mb-10">你已完成本課的所有測驗！</p>
+            <div class="flex gap-4 justify-center">
+                <button onclick="backToSelection()" class="bg-orange-100 text-orange-600 border-4 border-orange-300 text-2xl lg:text-3xl font-black py-4 px-8 rounded-full shadow-lg hover:scale-105 transition-all tracking-widest">
+                    選其他課
+                </button>
+                <button onclick="window.location.href='index.html'" class="bg-gradient-to-r from-orange-400 to-rose-500 text-white text-2xl lg:text-3xl font-black py-4 px-8 rounded-full shadow-lg hover:scale-105 transition-all tracking-widest">
+                    回大廳
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        if (typeof lessonData4 === 'undefined') {
+            alert("題庫載入失敗！請確認 'data_lesson4.js' 檔案是否存在。");
+        }
+
+        let currentLessonKey = "";
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let isAnswering = false; // 防止連續點擊
+
+        window.onload = () => {
+            if (typeof lessonData4 !== 'undefined') {
+                renderLessonSelection();
+            }
+        };
+
+        // 產生 1~12 課的按鈕
+        function renderLessonSelection() {
+            const lessonGrid = document.getElementById('lessonGrid');
+            lessonGrid.innerHTML = '';
+            
+            for (let i = 1; i <= 12; i++) {
+                const lessonKey = `lesson${i}`;
+                const hasQuestions = lessonData4[lessonKey] && lessonData4[lessonKey].length > 0;
+                
+                const btn = document.createElement('button');
+                
+                if (hasQuestions) {
+                    btn.className = "bg-white border-4 border-orange-300 text-orange-600 text-3xl lg:text-4xl font-bold py-6 lg:py-10 rounded-2xl lg:rounded-[2rem] shadow-md hover:bg-orange-50 hover:shadow-xl transition-transform hover:-translate-y-1 tracking-widest";
+                    btn.innerText = `第 ${i} 課`;
+                    btn.onclick = () => startLesson(lessonKey, i);
+                } else {
+                    // 該課沒題目時，呈現灰色不可點擊狀態
+                    btn.className = "bg-gray-100 border-4 border-gray-200 text-gray-400 text-3xl lg:text-4xl font-bold py-6 lg:py-10 rounded-2xl lg:rounded-[2rem] shadow-sm cursor-not-allowed tracking-widest relative overflow-hidden";
+                    btn.innerHTML = `第 ${i} 課 <span class="absolute text-sm bg-gray-300 text-white px-2 py-1 rounded-full bottom-2 right-2 font-sans">無題目</span>`;
+                }
+                
+                lessonGrid.appendChild(btn);
+            }
+        }
+
+        // 開始特定課次的測驗
+        function startLesson(lessonKey, lessonNumber) {
+            currentLessonKey = lessonKey;
+            // 複製並隨機打亂該課題目
+            currentQuestions = [...lessonData4[lessonKey]].sort(() => Math.random() - 0.5);
+            currentQuestionIndex = 0;
+
+            document.getElementById('currentLessonTitle').innerText = `第 ${lessonNumber} 課`;
+            
+            // 切換畫面
+            document.getElementById('lessonSelectionScreen').classList.add('hidden');
+            document.getElementById('lessonSelectionScreen').classList.remove('flex');
+            
+            const quizScreen = document.getElementById('quizScreen');
+            quizScreen.classList.remove('hidden');
+            quizScreen.classList.add('flex', 'animate-popIn');
+            
+            document.getElementById('completionModal').classList.add('hidden');
+
+            loadQuestion();
+        }
+
+        // 回到選課畫面
+        function backToSelection() {
+            document.getElementById('quizScreen').classList.add('hidden');
+            document.getElementById('quizScreen').classList.remove('flex');
+            
+            const selectionScreen = document.getElementById('lessonSelectionScreen');
+            selectionScreen.classList.remove('hidden');
+            selectionScreen.classList.add('flex', 'animate-popIn');
+            
+            document.getElementById('completionModal').classList.add('hidden');
+        }
+
+        function loadQuestion() {
+            isAnswering = false;
+            updateProgress();
+
+            const currentData = currentQuestions[currentQuestionIndex];
+            
+            // 載入題目
+            document.getElementById('questionBox').innerText = currentData.question;
+
+            // 載入選項
+            const optionsGrid = document.getElementById('optionsGrid');
+            optionsGrid.innerHTML = '';
+            
+            currentData.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn bg-white border-4 border-rose-300 text-rose-700 text-3xl lg:text-4xl font-bold py-6 lg:py-10 rounded-2xl lg:rounded-3xl shadow-md hover:bg-rose-50 hover:shadow-xl transition-all tracking-wide flex items-center justify-center";
+                btn.innerHTML = `<span class="pointer-events-none">${opt}</span>`;
+                btn.onclick = () => checkAnswer(index, currentData.answer);
+                optionsGrid.appendChild(btn);
+            });
+        }
+
+        function updateProgress() {
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            const percentage = (currentQuestionIndex / currentQuestions.length) * 100;
+            progressBar.style.width = percentage + '%';
+            progressText.innerText = (currentQuestionIndex + 1) + ' / ' + currentQuestions.length;
+        }
+
+        function checkAnswer(selectedIndex, correctIndex) {
+            if (isAnswering) return;
+            isAnswering = true;
+
+            if (selectedIndex === correctIndex) {
+                showFeedback(true, "答對了！");
+                setTimeout(() => {
+                    currentQuestionIndex++;
+                    if (currentQuestionIndex >= currentQuestions.length) {
+                        document.getElementById('completionModal').classList.remove('hidden');
+                    } else {
+                        loadQuestion();
+                    }
+                }, 1500);
+            } else {
+                showFeedback(false, "不對喔！再想想看");
+                setTimeout(() => {
+                    isAnswering = false;
+                }, 1200);
+            }
+        }
+
+        function showFeedback(isCorrect, message) {
+            const feedbackModal = document.getElementById('feedbackModal');
+            const feedbackIcon = document.getElementById('feedbackIcon');
+            const feedbackText = document.getElementById('feedbackText');
+            const modalBox = feedbackModal.querySelector('div');
+
+            feedbackModal.classList.remove('hidden');
+            modalBox.classList.remove('animate-shake', 'animate-popIn');
+            void modalBox.offsetWidth; // 觸發重繪
+
+            if (isCorrect) {
+                modalBox.classList.add('animate-popIn');
+                feedbackIcon.className = "text-[6rem] lg:text-[10rem] mb-4 text-green-500 font-sans";
+                feedbackIcon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+                feedbackText.className = "text-4xl lg:text-6xl font-black text-green-600 tracking-widest";
+            } else {
+                modalBox.classList.add('animate-shake');
+                feedbackIcon.className = "text-[6rem] lg:text-[10rem] mb-4 text-red-500 font-sans";
+                feedbackIcon.innerHTML = '<i class="fa-solid fa-circle-xmark"></i>';
+                feedbackText.className = "text-4xl lg:text-6xl font-black text-red-600 tracking-widest";
+            }
+            feedbackText.textContent = message;
+
+            setTimeout(() => {
+                feedbackModal.classList.add('hidden');
+            }, 1200);
+        }
+    </script>
+</body>
+</html>
